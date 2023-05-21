@@ -1,0 +1,23 @@
+version: "3.5"
+services:
+  prometheus:
+    image: prom/prometheus:v2.44.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - "./rules:/etc/prometheus/rules"
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-lifecycle
+  prometheus-api:
+    image: hayk96/prometheus-api:latest
+    container_name: prometheus-api
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./rules:/app/rules:rw"
+    command:
+      - --prom.addr=http://prometheus:9090
+      - --rule.path=/app/rules
