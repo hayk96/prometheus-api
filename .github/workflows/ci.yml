@@ -33,7 +33,7 @@ jobs:
         uses: anothrNick/github-tag-action@1.66.0
         env:
           DRY_RUN: true
-          DEFAULT_BUMP: major
+          DEFAULT_BUMP: minor
           WITH_V: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
@@ -92,7 +92,7 @@ jobs:
         id: git_tag
         uses: anothrNick/github-tag-action@1.66.0
         env:
-          DEFAULT_BUMP: major
+          DEFAULT_BUMP: minor
           RELEASE_BRANCHES: main
           WITH_V: true
           PRERELEASE: true
