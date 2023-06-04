@@ -6,6 +6,7 @@ on:
       - main
     types:
       - closed
+    paths: [src/**/*, main.py, requirements.txt, Dockerfile]
 
 jobs:
   push_to_registries:
@@ -33,7 +34,7 @@ jobs:
         uses: anothrNick/github-tag-action@1.66.0
         env:
           DRY_RUN: true
-          DEFAULT_BUMP: minor
+          DEFAULT_BUMP: patch
           WITH_V: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata (tags, labels) for Docker
@@ -92,7 +93,7 @@ jobs:
         id: git_tag
         uses: anothrNick/github-tag-action@1.66.0
         env:
-          DEFAULT_BUMP: minor
+          DEFAULT_BUMP: patch
           RELEASE_BRANCHES: main
           WITH_V: true
           PRERELEASE: true
