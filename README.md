@@ -1,5 +1,12 @@
 # prometheus-api
 > Extended HTTP API service for Prometheus
+> 
+![Github stars](https://badgen.net/github/stars/hayk96/prometheus-api?icon=github&label=stars)
+![Github forks](https://badgen.net/github/forks/hayk96/prometheus-api?icon=github&label=forks)
+![Github issues](https://img.shields.io/github/issues/hayk96/prometheus-api)
+[![Docker Stars](https://badgen.net/docker/stars/hayk96/prometheus-api?icon=docker&label=stars)](https://hub.docker.com/r/hayk96/prometheus-api/)
+[![Docker Pulls](https://badgen.net/docker/pulls/hayk96/prometheus-api?icon=docker&label=pulls)](https://hub.docker.com/r/hayk96/prometheus-api/)
+[![Docker Image Size](https://badgen.net/docker/size/hayk96/prometheus-api?icon=docker&label=image%20size)](https://hub.docker.com/r/hayk96/prometheus-api/)
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
