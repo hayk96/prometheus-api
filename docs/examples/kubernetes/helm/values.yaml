@@ -1,0 +1,28 @@
+server:
+  sidecarContainers:
+     prometheus-api:
+       image: hayk96/prometheus-api:latest
+       imagePullPolicy: IfNotPresent
+       args:
+        - --prom.addr=http://localhost:9091
+        - --web.listen-address=0.0.0.0:9090
+        - --rule.path=/rules
+       ports:
+         - containerPort: 9090
+       volumeMounts:
+        - name: storage-volume
+          mountPath: /rules
+          subPath: rules
+          readOnly: false
+  extraFlags:
+    - web.enable-lifecycle
+    - web.listen-address=:9091
+  extraVolumeMounts:
+    - name: storage-volume
+      mountPath: /rules
+      subPath: rules
+serverFiles:
+  prometheus.yml:
+    rule_files:
+      - /rules/*.yml
+      - /rules/*.yaml
