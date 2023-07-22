@@ -13,7 +13,7 @@ $ helm repo update
 ### Install chart
 ```shell
 $ helm install prometheus prometheus-community/prometheus \
---values https://raw.githubusercontent.com/hayk96/prometheus-api/hayk96/main/docs/examples/kubernetes/helm/values.yaml
+--values https://raw.githubusercontent.com/hayk96/prometheus-api/main/docs/examples/kubernetes/helm/values.yaml
 ```
 
 ### Verify that everything is working properly
