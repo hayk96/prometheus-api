@@ -1,9 +1,9 @@
-from jsonschema import validate, exceptions
 from src.utils.arguments import arg_parser
+from src.utils.schemas import rule_schema
+from jsonschema import exceptions
 from pydantic import BaseModel
 from typing import Optional
 import requests
-import json
 import yaml
 import os
 
@@ -18,11 +18,8 @@ class Rule(BaseModel):
         Validates the rule object provided by
         the user against the required schema.
         """
-        schema_file = "src/schemas/prom-rules-schema.json"
-        with open(schema_file) as f:
-            schema = json.load(f)
         try:
-            validate(instance=self.data, schema=schema)
+            rule_schema.validate(self.data)
         except exceptions.ValidationError as e:
             return False, "error", e.args[0]
         return True, "success", "Prometheus rule is valid"

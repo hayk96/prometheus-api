@@ -1,3 +1,4 @@
+from src.utils.schemas import rule_schema_status
 from src.utils.arguments import arg_parser
 from src.api.v1.api import api_router
 from src.utils.log import logger
@@ -10,10 +11,11 @@ args = arg_parser()
 prom_addr, rule_path = args.get("prom.addr"), args.get("rule.path")
 host, port = args.get("web.listen_address").split(":")
 
-if not any([settings.check_prom_http_connection(prom_addr),
-            settings.check_reload_api_status(prom_addr),
-            settings.check_rules_directory(rule_path),
-            settings.check_fs_permissions(rule_path)]):
+if False in [settings.check_prom_http_connection(prom_addr),
+             settings.check_reload_api_status(prom_addr),
+             settings.check_rules_directory(rule_path),
+             settings.check_fs_permissions(rule_path),
+             rule_schema_status]:
     sys.exit()
 
 app = FastAPI()
