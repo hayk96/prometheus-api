@@ -1,6 +1,7 @@
 from src.utils.schemas import rule_schema_status
 from src.utils.arguments import arg_parser
 from src.api.v1.api import api_router
+from src.utils.openapi import openapi
 from src.utils.log import logger
 from src.utils import settings
 from fastapi import FastAPI
@@ -18,11 +19,17 @@ if False in [settings.check_prom_http_connection(prom_addr),
              rule_schema_status]:
     sys.exit()
 
-app = FastAPI()
+
+def custom_openapi_wrapper():
+    return openapi(app)
+
+
+app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
+app.openapi = custom_openapi_wrapper
 app.include_router(api_router)
 
 
-if __name__ == "__main__":
+def main():
     config = uvicorn.Config(
         app,
         host=host,
@@ -36,3 +43,7 @@ if __name__ == "__main__":
         server.run()
     except BaseException as e:
         logger.error(e)
+
+
+if __name__ == "__main__":
+    main()
