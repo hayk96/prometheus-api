@@ -31,7 +31,7 @@ def arg_parser() -> dict:
         default="0.0.0.0:5000",
         help="address to listen on for API"
     )
-    
+
     parser.add_argument(
         "--file.prefix",
         required=False,
