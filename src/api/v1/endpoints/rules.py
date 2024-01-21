@@ -5,6 +5,7 @@ from src.models.rule import Rule
 from src.utils.log import logger
 from typing import Annotated
 from random import choices
+from shutil import copy
 import time
 import os
 
@@ -191,11 +192,22 @@ async def update(
         Body(
             openapi_examples=Rule._request_body_examples,
         )
-    ]
+    ],
+    recreate: str = "false"
 ):
     r = Rule(data=rule.data)
 
     if file and os.path.exists(f"{Rule._rule_path}/{file}"):
+        if recreate.lower() == "true":
+            orig_file, temp_file = f"{Rule._rule_path}/{file}", f"{Rule._rule_path}/{file}.temp"
+            copy(orig_file, temp_file)
+            resp = create_prometheus_rule(r, request, response, file)
+            if resp.get("status") == "success":
+                os.remove(temp_file)
+                return resp
+            os.rename(temp_file, orig_file)
+            return resp
+
         response.status_code = status.HTTP_409_CONFLICT
         msg = f"The requested file already exists."
         logger.info(
