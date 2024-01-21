@@ -94,5 +94,5 @@ class Rule(BaseModel):
         try:
             r = requests.post(f"{self._prom_addr}/-/reload")
         except requests.RequestException as e:
-            return int(False), "error", str(e)
+            return 500, "error", str(e)
         return r.status_code, "success" if r.status_code == 200 else "error", r.text
