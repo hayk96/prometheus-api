@@ -99,4 +99,4 @@ curl -i -XDELETE 'http://localhost:9090/api/v1/rules/scviiavxvnqdpjl.yml'
 HTTP/1.1 204 No Content
 content-type: application/json
 ```
-You can find the complete API documentation [here](../../../rest-api). Enjoy!
+You can find the complete API documentation [here](https://hayk96.github.com/prometheus-api). Enjoy!

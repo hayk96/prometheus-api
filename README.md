@@ -112,7 +112,7 @@ content-type: application/json
 
 The **prometheus-api**, built upon REST API design principles, provides a seamless and efficient way to interact with 
 native Prometheus HTTP API. If you would like to explore its capabilities and learn more about its endpoints, request 
-formats, and response structures, please refer to the comprehensive documentation available [here](https://github.com/hayk96/prometheus-api/tree/main/docs/rest-api).
+formats, and response structures, please refer to the comprehensive documentation available [here](https://hayk96.github.com/prometheus-api).
 
 <!-- CONFIGURATION -->
 ## Configuration
