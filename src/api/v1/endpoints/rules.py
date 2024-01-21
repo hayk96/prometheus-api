@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Response, Request, status
+from fastapi import APIRouter, Response, Request, Body, status
 from src.utils.arguments import arg_parser
 from string import ascii_lowercase
 from src.models.rule import Rule
 from src.utils.log import logger
+from typing import Annotated
 from random import choices
 import time
 import os
@@ -51,8 +52,64 @@ def create_prometheus_rule(
     return resp
 
 
-@router.post("/rules", status_code=status.HTTP_201_CREATED)
-async def create(rule: Rule, request: Request, response: Response):
+@router.post("/rules",
+             name="Create Rule",
+             description="Creates a new rule with a randomly generated filename",
+             status_code=status.HTTP_201_CREATED,
+             tags=["rules"],
+             responses={
+                 201: {
+                     "description": "Created",
+                     "content": {
+                         "application/json": {
+                             "example": [
+                                {
+                                    "status": "success",
+                                    "file": "example-rule.yml",
+                                    "message": "The rule was created successfully"
+                                }
+                             ]
+                         }
+                     }
+                 },
+                 400: {
+                     "description": "Bad Request",
+                     "content": {
+                         "application/json": {
+                             "example": [
+                                 {
+                                     "status": "error",
+                                     "message": "Additional properties are not allowed ('rule' was unexpected)"
+                                 }
+                             ]
+                         }
+                     }
+                 },
+                 500: {
+                     "description": "Internal Server Error",
+                     "content": {
+                         "application/json": {
+                             "example": [
+                                 {
+                                     "status": "error",
+                                     "message": "failed to reload config: one or more errors occurred while applying the new configuration (--config.file=\"/etc/prometheus/prometheus.yml\")\n"
+                                 }
+                             ]
+                         }
+                     }
+                 }
+             }
+             )
+async def create(
+        request: Request,
+        response: Response,
+        rule: Annotated[
+            Rule,
+            Body(
+                openapi_examples=Rule._request_body_examples,
+            )
+        ]
+):
     r = Rule(data=rule.data)
     file_prefix = f"{arg_parser().get('file.prefix')}-" if arg_parser().get('file.prefix') else ""
     file_suffix = arg_parser().get('file.extension')
@@ -65,8 +122,77 @@ async def create(rule: Rule, request: Request, response: Response):
     return create_prometheus_rule(r, request, response, file)
 
 
-@router.put("/rules/{file}", status_code=status.HTTP_201_CREATED)
-async def update(file: str, rule: Rule, request: Request, response: Response):
+@router.put("/rules/{file}",
+            name="Create Rule",
+            description="Creates a new rule file with the provided filename",
+            status_code=status.HTTP_201_CREATED,
+            tags=["rules"],
+            responses={
+                201: {
+                    "description": "Created",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "success",
+                                    "message": "The rule was created successfully"
+                                }
+                            ]
+                        }
+                    }
+                },
+                400: {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "error",
+                                    "message": "Additional properties are not allowed ('rule' was unexpected)"
+                                }
+                            ]
+                        }
+                    }
+                },
+                409: {
+                    "description": "Conflict",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "error",
+                                    "message": "The requested file already exists"
+                                }
+                            ]
+                        }
+                    }
+                },
+                500: {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "error",
+                                    "message": "failed to reload config: one or more errors occurred while applying the new configuration (--config.file=\"/etc/prometheus/prometheus.yml\")\n"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+            )
+async def update(
+    file: str,
+    request: Request,
+    response: Response,
+    rule: Annotated[
+        Rule,
+        Body(
+            openapi_examples=Rule._request_body_examples,
+        )
+    ]
+):
     r = Rule(data=rule.data)
 
     if file and os.path.exists(f"{Rule._rule_path}/{file}"):
@@ -82,7 +208,43 @@ async def update(file: str, rule: Rule, request: Request, response: Response):
     return create_prometheus_rule(r, request, response, file)
 
 
-@router.delete("/rules/{file}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/rules/{file}",
+               name="Delete Rule",
+               description="Deletes a rule that matches to the provided parameter",
+               status_code=status.HTTP_204_NO_CONTENT,
+               tags=["rules"],
+               responses={
+                   204: {
+                       "description": "No Content",
+                   },
+                   404: {
+                       "description": "Conflict",
+                       "content": {
+                           "application/json": {
+                               "example": [
+                                   {
+                                      "status": "error",
+                                      "message": "File not found"
+                                   }
+                               ]
+                           }
+                       }
+                   },
+                   500: {
+                       "description": "Internal Server Error",
+                       "content": {
+                           "application/json": {
+                               "example": [
+                                   {
+                                       "status": "error",
+                                       "message": "failed to reload config: one or more errors occurred while applying the new configuration (--config.file=\"/etc/prometheus/prometheus.yml\")\n"
+                                   }
+                               ]
+                           }
+                       }
+                   }
+               }
+               )
 async def delete(file, request: Request, response: Response):
     r = Rule()
 
