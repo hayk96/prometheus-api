@@ -45,7 +45,7 @@ def create_prometheus_rule(
         extra={
             "status": response.status_code,
             "method": request.method,
-            "path": request.url.path})
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
 
     resp = {"status": sts, "message": msg}
     if request.method == "POST":
@@ -215,7 +215,7 @@ async def update(
             extra={
                 "status": response.status_code,
                 "method": request.method,
-                "path": request.url.path})
+                "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
         return {"status": "error", "message": msg}
     return create_prometheus_rule(r, request, response, file)
 
@@ -281,7 +281,7 @@ async def delete(file, request: Request, response: Response):
         extra={
             "status": response.status_code,
             "method": request.method,
-            "path": request.url.path})
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
     return {
         "status": sts,
         "message": msg} if response.status_code != 204 else response.status_code
