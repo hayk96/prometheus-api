@@ -5,6 +5,7 @@ from src.models.rule import Rule
 from src.utils.log import logger
 from typing import Annotated
 from random import choices
+from shutil import copy
 import time
 import os
 
@@ -44,7 +45,7 @@ def create_prometheus_rule(
         extra={
             "status": response.status_code,
             "method": request.method,
-            "path": request.url.path})
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
 
     resp = {"status": sts, "message": msg}
     if request.method == "POST":
@@ -191,11 +192,22 @@ async def update(
         Body(
             openapi_examples=Rule._request_body_examples,
         )
-    ]
+    ],
+    recreate: str = "false"
 ):
     r = Rule(data=rule.data)
 
     if file and os.path.exists(f"{Rule._rule_path}/{file}"):
+        if recreate.lower() == "true":
+            orig_file, temp_file = f"{Rule._rule_path}/{file}", f"{Rule._rule_path}/{file}.temp"
+            copy(orig_file, temp_file)
+            resp = create_prometheus_rule(r, request, response, file)
+            if resp.get("status") == "success":
+                os.remove(temp_file)
+                return resp
+            os.rename(temp_file, orig_file)
+            return resp
+
         response.status_code = status.HTTP_409_CONFLICT
         msg = f"The requested file already exists."
         logger.info(
@@ -203,7 +215,7 @@ async def update(
             extra={
                 "status": response.status_code,
                 "method": request.method,
-                "path": request.url.path})
+                "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
         return {"status": "error", "message": msg}
     return create_prometheus_rule(r, request, response, file)
 
@@ -269,7 +281,7 @@ async def delete(file, request: Request, response: Response):
         extra={
             "status": response.status_code,
             "method": request.method,
-            "path": request.url.path})
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
     return {
         "status": sts,
         "message": msg} if response.status_code != 204 else response.status_code

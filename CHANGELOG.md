@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.4 / 2024-01-28
+
+* [ENHANCEMENT] Added HTTP query string: `recreate=true|false` for `PUT /api/v1/rules/{file}` endpoint.
+* [CHANGE] Log format includes HTTP query strings passed by user.
+
 ## 0.1.3 / 2024-01-21
 
 * [CHANGE] Upgraded FastAPI module from `0.95.1` to `0.109.0`.

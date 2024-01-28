@@ -25,7 +25,7 @@ async def _reverse_proxy(request: Request):
         extra={
             "status": rp_resp.status_code,
             "method": request.method,
-            "path": rp_resp.url.path})
+            "request_path": rp_resp.url.path})
     return StreamingResponse(
         rp_resp.aiter_raw(),
         status_code=rp_resp.status_code,
