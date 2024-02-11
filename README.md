@@ -1,7 +1,8 @@
 # prometheus-api
 > Extended HTTP API service for Prometheus
 >
-![CI](https://github.com/hayk96/prometheus-api/actions/workflows/ci.yml/badge.svg)
+![Build](https://github.com/hayk96/prometheus-api/actions/workflows/build.yml/badge.svg)
+![Release](https://github.com/hayk96/prometheus-api/actions/workflows/release.yml/badge.svg)
 ![Github stars](https://badgen.net/github/stars/hayk96/prometheus-api?icon=github&label=stars)
 ![Github forks](https://badgen.net/github/forks/hayk96/prometheus-api?icon=github&label=forks)
 ![Github issues](https://img.shields.io/github/issues/hayk96/prometheus-api)
