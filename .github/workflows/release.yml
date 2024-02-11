@@ -1,9 +1,6 @@
-name: CI
+name: Release
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -11,10 +8,17 @@ on:
       - closed
     paths: [src/**/*, main.py, requirements.txt, Dockerfile]
 
+env:
+  PR_NUMBER: pr${{ github.event.number }}
+
 jobs:
-  build:
-    name: Build Docker images
+  push:
+    name: Push Docker images
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,77 +30,22 @@ jobs:
           DEFAULT_BUMP: patch
           WITH_V: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-        with:
-          images: |
-            ${{ github.repository }}
-            ghcr.io/${{ github.repository }}
-          tags: |
-            type=raw,value=${{ steps.git_tag.outputs.tag }}
-            type=raw,value=latest
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build Docker images
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=docker,dest=/tmp/${{ github.event.repository.name }}-${{ steps.git_tag.outputs.tag }}.tar
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ github.event.repository.name }}-${{ steps.git_tag.outputs.tag }}
-          path: /tmp/${{ github.event.repository.name }}-${{ steps.git_tag.outputs.tag }}.tar
       - name: Prepare job outputs
         id: op
         run: |
           echo "date=$(date +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
           echo "app_version=$(sed "s/^v//" <<< ${{ steps.git_tag.outputs.tag }})" >> "$GITHUB_OUTPUT"
-    outputs:
-       gitTag: ${{ steps.git_tag.outputs.tag }}
-       appVersion: ${{ steps.op.outputs.app_version }}
-       date: ${{ steps.op.outputs.date }}
-
-  scan:
-    name: Scan Docker images
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: dawidd6/action-download-artifact@v3
         with:
-          name: ${{ github.event.repository.name }}-${{ needs.build.outputs.gitTag }}
+          name: ${{ github.event.repository.name }}-${{ env.PR_NUMBER }}
           path: /tmp
+          workflow: pr.yml
       - name: Load image
         run: |
-          docker load --input /tmp/${{ github.event.repository.name }}-${{ needs.build.outputs.gitTag }}.tar
-      - name: Find vulnerabilities
-        run: |
-          docker run -v /var/run/docker.sock:/var/run/docker.sock \
-          anchore/grype:v0.72.0 docker:${{ github.repository }}:${{ needs.build.outputs.gitTag }} -o table --fail-on critical
-
-  push:
-    name: Push Docker images
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
-    needs: [build, scan]
-    steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ github.event.repository.name }}-${{ needs.build.outputs.gitTag }}
-          path: /tmp
-      - name: Load image
-        run: |
-          docker load --input /tmp/${{ github.event.repository.name }}-${{ needs.build.outputs.gitTag }}.tar
+          docker load --input /tmp/${{ github.event.repository.name }}-${{ env.PR_NUMBER }}.tar
+          docker tag ${{ github.repository }}:${{ env.PR_NUMBER }} ${{ github.repository }}:${{ steps.git_tag.outputs.tag }}
+          docker tag ${{ github.repository }}:${{ env.PR_NUMBER }} ghcr.io/${{ github.repository }}:${{ steps.git_tag.outputs.tag }}
       - name: Login to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
@@ -110,12 +59,16 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker images to DockerHub
         run: |
-          docker push docker.io/${{ github.repository }}:${{ needs.build.outputs.gitTag }}
+          docker push docker.io/${{ github.repository }}:${{ needs.push.outputs.gitTag }}
           docker push docker.io/${{ github.repository }}:latest
       - name: Push Docker images to GH Container registry
         run: |
-          docker push ghcr.io/${{ github.repository }}:${{ needs.build.outputs.gitTag }}
-          docker push ghcr.io/${{ github.repository }}:latest          
+          docker push ghcr.io/${{ github.repository }}:${{ steps.git_tag.outputs.tag }}
+          docker push ghcr.io/${{ github.repository }}:latest
+    outputs:
+       gitTag: ${{ steps.git_tag.outputs.tag }}
+       appVersion: ${{ steps.op.outputs.app_version }}
+       date: ${{ steps.op.outputs.date }}
 
   bump:
     name: Bump version
@@ -123,7 +76,7 @@ jobs:
     permissions:
       packages: read
       contents: write
-    needs: [build, scan]
+    needs: [push]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -136,11 +89,6 @@ jobs:
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
           git_commit_gpgsign: true
-      - name: Update VERSION file
-        run: |
-          echo ${{ needs.build.outputs.appVersion }} > VERSION
-          git commit -a --no-edit --allow-empty -S -s -m "Release ${{ needs.build.outputs.appVersion }}"
-          git push
       - name: Create Git tag
         id: git_tag
         uses: anothrNick/github-tag-action@1.66.0
@@ -154,7 +102,7 @@ jobs:
   release:
     name: Publish release
     runs-on: ubuntu-latest
-    needs: [build, scan, bump]
+    needs: [push, bump]
     permissions:
       contents: write
     steps:
@@ -163,14 +111,14 @@ jobs:
       - name: Publish release
         uses: ncipollo/release-action@v1.12.0
         with:
-          tag: ${{ needs.build.outputs.gitTag }}
-          name: ${{ needs.build.outputs.appVersion }} / ${{ needs.build.outputs.date }}
+          tag: ${{ needs.push.outputs.gitTag }}
+          name: ${{ needs.push.outputs.appVersion }} / ${{ needs.push.outputs.date }}
           bodyFile: CHANGELOG.md
 
   documentation:
     name: Publish API documentation
     runs-on: ubuntu-latest
-    needs: [build, scan, bump]
+    needs: [push, bump]
     permissions:
       contents: write
     steps:
@@ -179,6 +127,7 @@ jobs:
       - name: Start project with Docker Compose
         run: |
           cd docs/examples/docker && docker compose up -d
+          sleep 10
       - name: Build Redocly page
         uses: seeebiii/redoc-cli-github-action@v10
         with:
