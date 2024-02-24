@@ -2,6 +2,7 @@ from src.utils.schemas import rule_schema_status
 from src.utils.arguments import arg_parser
 from src.api.v1.api import api_router
 from src.utils.openapi import openapi
+from src.utils.metrics import metrics
 from src.utils.log import logger
 from src.utils import settings
 from fastapi import FastAPI
@@ -26,6 +27,7 @@ def custom_openapi_wrapper():
 
 app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
 app.openapi = custom_openapi_wrapper
+metrics(app)
 app.include_router(api_router)
 
 
