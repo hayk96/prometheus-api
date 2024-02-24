@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 / 2024-02-25
+
+* [ENHANCEMENT] Added support for exposing Prometheus metrics. The corresponding metrics are available under the path 
+`/api-metrics`. The `/metrics` endpoint is also accessible for exposing the metrics of the Prometheus server.
+* [BUGFIX] Fixed startup check of filesystem permissions in case of OSError.  
+
 ## 0.1.4 / 2024-01-28
 
 * [ENHANCEMENT] Added HTTP query string: `recreate=true|false` for `PUT /api/v1/rules/{file}` endpoint.
