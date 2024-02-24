@@ -1,6 +1,7 @@
 name: Release
 
 on:
+  push: {}
   pull_request:
     branches:
       - main
@@ -9,7 +10,7 @@ on:
     paths: [src/**/*, main.py, requirements.txt, Dockerfile]
 
 env:
-  PR_NUMBER: pr${{ github.event.number }}
+  PR_NUMBER: pr11
 
 jobs:
   push:
@@ -59,7 +60,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Push Docker images to DockerHub
         run: |
-          docker push docker.io/${{ github.repository }}:${{ needs.push.outputs.gitTag }}
+          docker push docker.io/${{ github.repository }}:${{ steps.git_tag.outputs.tag }}
           docker push docker.io/${{ github.repository }}:latest
       - name: Push Docker images to GH Container registry
         run: |
