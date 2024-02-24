@@ -57,7 +57,7 @@ def check_fs_permissions(prometheus_rules_dir) -> bool:
     except OSError as e:
         logger.error(
             f"The temporary file could not be created or deleted for testing permissions. {e}")
-        return True
+        return False
     else:
         logger.debug(
             "The application has the necessary permissions to access the rule files directory.")
