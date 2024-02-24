@@ -146,9 +146,9 @@ required parameters:
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Add Prometheus instrumentation to expose metrics.
+- [x] Add Prometheus instrumentation to expose metrics.
 - [ ] Add a Bulk API to allow the creation of multiple rules via a single API call.
-- [ ] Implement a way to update existing rules through the API.
+- [x] Implement a way to update existing rules through the API.
 
 <!-- CONTACT -->
 ## Author and Maintainer
