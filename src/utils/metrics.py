@@ -16,7 +16,7 @@ def metrics(app: FastAPI):
             excluded_handlers=["/{path:path}", "/.*metrics"]
         )
         instrumentator.instrument(app)
-        instrumentator.expose(app, endpoint=metrics_path)
+        instrumentator.expose(app, endpoint=metrics_path, tags=["metrics"])
     except BaseException as e:
         logger.error(f"{modules[__name__], e}")
     else:
