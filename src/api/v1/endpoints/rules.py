@@ -209,7 +209,7 @@ async def update(
             return resp
 
         response.status_code = status.HTTP_409_CONFLICT
-        msg = f"The requested file already exists."
+        msg = "The requested file already exists."
         logger.info(
             msg=msg,
             extra={
