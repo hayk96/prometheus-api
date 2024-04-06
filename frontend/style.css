@@ -1,0 +1,9 @@
+#editorContainer {
+    margin-top: 20px;
+}
+
+textarea {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 20px;
+}
