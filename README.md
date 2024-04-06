@@ -29,6 +29,8 @@
     </li>
     <li><a href="#examples">Examples</a></li>
     <li><a href="#api-model">API model</a></li>
+    <li><a href="#configuration">Configuration</a></li>
+    <li><a href="#grafana-dashboard">Grafana dashboard</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#author-and-maintainer">Author and Maintainer</a></li>
     <li><a href="#licence">License</a></li>
@@ -142,6 +144,12 @@ required parameters:
   --prom.addr PROM.ADDR
                         URL of Prometheus server, e.g. http://localhost:9090
 ```
+
+<!-- GRAFANA DASHBOARD -->
+## Grafana dashboard
+
+Grafana dashboard JSON model is available [here](https://github.com/hayk96/prometheus-api/tree/main/grafana/dashboard.json).
+![](docs/images/dashboard.png)
 
 <!-- ROADMAP -->
 ## Roadmap
