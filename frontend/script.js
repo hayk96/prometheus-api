@@ -3,6 +3,8 @@ let currentFilename = '';
 let codeMirrorInstance;
 
 document.addEventListener('DOMContentLoaded', () => {
+    const saveButton = document.getElementById('saveBtn'); // Adjust if your button has a different identifier
+    saveButton.addEventListener('click', saveRule);
     codeMirrorInstance = CodeMirror.fromTextArea(document.getElementById('yamlEditor'), {
         mode: 'yaml',
         lineNumbers: true,
@@ -184,7 +186,11 @@ function saveRule() {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                // Parse the response as JSON only if the response is not ok
+                return response.json().then(err => {
+                    // If the JSON has a 'message' field, throw it as an error
+                    throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                });
             }
             return response.json();
         })
@@ -193,11 +199,16 @@ function saveRule() {
             document.getElementById('editorContainer').style.display = 'none';
         })
         .catch(error => {
+            // The error thrown from above is caught here and its message is displayed
             alert('Error saving rule: ' + error.message);
             console.error('Error:', error);
         });
     } catch (error) {
+        // If jsyaml.load throws an error, catch it here
         alert('Error processing YAML: ' + error.message);
         console.error('Error parsing YAML:', error);
     }
 }
+
+
+
