@@ -3,8 +3,6 @@ let currentFilename = '';
 let codeMirrorInstance;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const saveButton = document.getElementById('saveBtn'); // Adjust if your button has a different identifier
-    saveButton.addEventListener('click', saveRule);
     codeMirrorInstance = CodeMirror.fromTextArea(document.getElementById('yamlEditor'), {
         mode: 'yaml',
         lineNumbers: true,
@@ -27,6 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const preprocessedData = preprocessDataForYaml(selectedGroup);
         codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
         document.getElementById('editorContainer').style.display = 'block';
+        setTimeout(() => {
+            codeMirrorInstance.refresh();
+        }, 1);
     });
 
     document.getElementById('cancelBtn').addEventListener('click', () => {
@@ -34,40 +35,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('editorContainer').style.display = 'none';
     });
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-        const editedYaml = codeMirrorInstance.getValue();
-        try {
-            const modifiedData = jsyaml.load(editedYaml);
-            const payload = JSON.stringify({ data: modifiedData });
-            const filename = encodeURIComponent(currentFilename.split('/').pop());
-
-            fetch(`http://localhost:5000/api/v1/rules/${filename}?recreate=true`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: payload
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert('Rule saved successfully.');
-                document.getElementById('editorContainer').style.display = 'none';
-            })
-            .catch(error => {
-                alert('Error saving rule: ' + error.message);
-                console.error('Error:', error);
-            });
-        } catch (error) {
-            alert('Error processing YAML: ' + error.message);
-            console.error('Error parsing YAML:', error);
-        }
-    });
+    document.getElementById('saveBtn').addEventListener('click', saveRule);
 });
+
+document.addEventListener('keydown', function(event) {
+    var modal = document.getElementById("myModal");
+    if (event.key === "Escape") {
+        modal.style.display = "none";
+    }
+});
+
 
 function fetchAndDisplayRules(ruleType) {
     fetch(`http://localhost:5000/api/v1/rules?type=${ruleType}`)
@@ -186,27 +163,42 @@ function saveRule() {
         })
         .then(response => {
             if (!response.ok) {
-                // Parse the response as JSON only if the response is not ok
                 return response.json().then(err => {
-                    // If the JSON has a 'message' field, throw it as an error
                     throw new Error(err.message || `HTTP error! status: ${response.status}`);
                 });
             }
             return response.json();
         })
         .then(data => {
-            alert('Rule saved successfully.');
+            displayModal('Rule saved successfully.');
             document.getElementById('editorContainer').style.display = 'none';
         })
         .catch(error => {
-            // The error thrown from above is caught here and its message is displayed
-            alert('Error saving rule: ' + error.message);
+            displayModal('Error saving rule: ' + error.message);
             console.error('Error:', error);
         });
     } catch (error) {
-        // If jsyaml.load throws an error, catch it here
-        alert('Error processing YAML: ' + error.message);
+        displayModal('Error processing YAML: ' + error.message);
         console.error('Error parsing YAML:', error);
+    }
+}
+
+function displayModal(message) {
+    var modal = document.getElementById("myModal");
+    var text = document.getElementById("modal-text");
+    var span = document.getElementsByClassName("close")[0];
+
+    text.textContent = message;
+    modal.style.display = "block";
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
     }
 }
 
