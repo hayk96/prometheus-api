@@ -147,14 +147,23 @@ function convertDurationToHumanReadable(duration) {
     return result;
 }
 
+function createRule() {
+    const filename = prompt("Please enter the filename for the new rule:", "");
+    if (filename) {
+        currentFilename = filename;
+        codeMirrorInstance.setValue('');
+        document.getElementById('editorContainer').style.display = 'block';
+    }
+}
+
 function saveRule() {
     const editedYaml = codeMirrorInstance.getValue();
     try {
         const modifiedData = jsyaml.load(editedYaml);
         const payload = JSON.stringify({ data: modifiedData });
-        const filename = encodeURIComponent(currentFilename.split('/').pop());
+        const url = `http://localhost:5000/api/v1/rules/${encodeURIComponent(currentFilename)}`;
 
-        fetch(`http://localhost:5000/api/v1/rules/${filename}?recreate=true`, {
+        fetch(url, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -163,9 +172,7 @@ function saveRule() {
         })
         .then(response => {
             if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(err.message || `HTTP error! status: ${response.status}`);
-                });
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
@@ -201,6 +208,3 @@ function displayModal(message) {
         }
     }
 }
-
-
-

@@ -33,3 +33,9 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+button {
+    padding: 10px 15px;
+    margin-right: 10px;
+    cursor: pointer;
+}
