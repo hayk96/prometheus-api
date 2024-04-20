@@ -125,31 +125,33 @@ function createRule() {
         currentFilename = filename;
         codeMirrorInstance.setValue('');
         document.getElementById('editorContainer').style.display = 'block';
+        setTimeout(() => {
+            codeMirrorInstance.refresh();
+        }, 0);
+    } else {
+        currentFilename = ''; 
     }
-    setTimeout(() => {
-        codeMirrorInstance.refresh();
-    }, 0);
 }
+
 
 async function saveRule() {
     const editedYaml = codeMirrorInstance.getValue();
     try {
         const modifiedData = jsyaml.load(editedYaml);
+
         if (!modifiedData) {
             throw new Error('The YAML is empty or not structured correctly.');
         }
         const payload = JSON.stringify({ data: modifiedData });
-        const filename = currentFilename ? encodeURIComponent(currentFilename.split('/').pop()) : '';
-        const method = currentFilename ? 'PUT' : 'POST';
-        const url = currentFilename ?
-            `http://localhost:5000/api/v1/rules/${filename}?recreate=true` :
-            `http://localhost:5000/api/v1/rules`;
+
+        
+        const isNewRule = !currentFilename.includes('/');
+        const filename = encodeURIComponent(isNewRule ? currentFilename : currentFilename.split('/').pop());
+        const url = `http://localhost:5000/api/v1/rules/${filename}${isNewRule ? '' : '?recreate=true'}`;
 
         const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
             body: payload
         });
 
@@ -158,19 +160,18 @@ async function saveRule() {
             throw new Error(err.message || `HTTP error! status: ${response.status}`);
         }
 
-        await response.json(); 
+        
+        if (response.status !== 204) {
+            await response.json();
+        }
         displayModal('Rule saved successfully.');
         document.getElementById('editorContainer').style.display = 'none';
-
-        
-        fetchAndDisplayAllRules();
+        fetchAndDisplayRules(); 
     } catch (error) {
         displayModal(`Error saving rule: ${error.message}`);
         console.error('Error:', error);
     }
 }
-
-
 
 
 function displayModal(message) {
