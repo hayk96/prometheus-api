@@ -230,49 +230,35 @@ function displayRulesList(groups) {
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
 
-            const editButton = document.createElement('button');
-            editButton.className = 'edit-rule-btn';
-            editButton.dataset.filePath = group.file;
-            editButton.dataset.groupIndex = groupIndex;
-            editButton.dataset.ruleIndex = ruleIndex;
-            editButton.setAttribute('aria-label', 'Edit Rule');
+            
             const editIcon = document.createElement('img');
-            editIcon.src = 'https://cdn-icons-png.flaticon.com/128/10336/10336582.png'; 
+            editIcon.src = 'https://cdn-icons-png.flaticon.com/128/10336/10336582.png';
             editIcon.alt = 'Edit';
             editIcon.className = 'edit-rule-icon';
+
+            const editButton = document.createElement('button');
+            editButton.className = 'edit-rule-btn';
             editButton.appendChild(editIcon);
+            editButton.addEventListener('click', () => editRule(group.file));
             buttonsContainer.appendChild(editButton);
 
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'remove-rule-btn';
-            deleteButton.dataset.filePath = group.file;
-            deleteButton.dataset.groupIndex = groupIndex;
-            deleteButton.dataset.ruleIndex = ruleIndex;
-            deleteButton.setAttribute('aria-label', 'Remove Rule');
             const removeIcon = document.createElement('img');
             removeIcon.src = 'https://cdn-icons-png.flaticon.com/128/9790/9790368.png'; 
             removeIcon.alt = 'Remove';
             removeIcon.className = 'remove-rule-icon';
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'remove-rule-btn';
             deleteButton.appendChild(removeIcon);
+            deleteButton.addEventListener('click', () => removeRule(group.file, groupIndex, ruleIndex));
             buttonsContainer.appendChild(deleteButton);
 
             ruleItem.appendChild(buttonsContainer);
             rulesListElement.appendChild(ruleItem);
         });
     });
-
-    
-    rulesListElement.addEventListener('click', function(event) {
-        const target = event.target;
-        if (target.className.includes('edit-rule-btn') || target.parentNode.className.includes('edit-rule-btn')) {
-            const button = target.closest('.edit-rule-btn');
-            editRule(button.dataset.filePath);
-        } else if (target.className.includes('remove-rule-btn') || target.parentNode.className.includes('remove-rule-btn')) {
-            const button = target.closest('.remove-rule-btn');
-            removeRule(button.dataset.filePath, button.dataset.groupIndex, button.dataset.ruleIndex);
-        }
-    });
 }
+
 
 function editRule(filePath) {
     currentFilename = filePath;

@@ -178,6 +178,11 @@ body {
     opacity: 0.8;
 }
 
+.edit-rule-icon, .remove-rule-icon {
+    display: inline-block; 
+    margin-left: 8px; 
+}
+
 .remove-rule-icon {
     width: 30px; 
     height: 30px; 
