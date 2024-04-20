@@ -3,51 +3,13 @@ let currentFilename = '';
 let codeMirrorInstance;
 
 document.addEventListener('DOMContentLoaded', () => {
-    codeMirrorInstance = CodeMirror.fromTextArea(document.getElementById('yamlEditor'), {
-        mode: 'yaml',
-        lineNumbers: true,
-        theme: 'monokai',
-        lineWrapping: true
-    });
-
-    document.getElementById('editAlertingRulesBtn').addEventListener('click', () => {
-        fetchAndDisplayRules('alert');
-    });
-
-    document.getElementById('editRecordingRulesBtn').addEventListener('click', () => {
-        fetchAndDisplayRules('record');
-    });
-
-    document.getElementById('fileSelector').addEventListener('change', (event) => {
-        const selectedIndex = event.target.value;
-        currentFilename = filesData[selectedIndex].file;
-        const selectedGroup = filesData[selectedIndex];
-        const preprocessedData = preprocessDataForYaml(selectedGroup);
-        codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
-        document.getElementById('editorContainer').style.display = 'block';
-        setTimeout(() => {
-            codeMirrorInstance.refresh();
-        }, 1);
-    });
-
-    document.getElementById('cancelBtn').addEventListener('click', () => {
-        codeMirrorInstance.setValue('');
-        document.getElementById('editorContainer').style.display = 'none';
-    });
-
-    document.getElementById('saveBtn').addEventListener('click', saveRule);
+    setupEditor();
+    setupEventListeners();
+    fetchAndDisplayAllRules();
 });
 
-document.addEventListener('keydown', function(event) {
-    var modal = document.getElementById("myModal");
-    if (event.key === "Escape") {
-        modal.style.display = "none";
-    }
-});
-
-
-function fetchAndDisplayRules(ruleType) {
-    fetch(`http://localhost:5000/api/v1/rules?type=${ruleType}`)
+function fetchAndDisplayRules() {
+    fetch(`http://localhost:5000/api/v1/rules`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -58,11 +20,11 @@ function fetchAndDisplayRules(ruleType) {
             if (!json.data) {
                 throw new Error('No data found in the response');
             }
-            filesData = json.data.groups;
-            populateFileSelector(filesData);
+            filesData = json.data.groups; 
+            displayRulesList(filesData); 
         })
         .catch(error => {
-            console.error(`Error fetching ${ruleType} rules:`, error);
+            console.error('Error fetching rules:', error);
         });
 }
 
@@ -71,10 +33,20 @@ function populateFileSelector(groups) {
     fileSelector.innerHTML = '';
     groups.forEach((group, index) => {
         const option = new Option(group.file, index);
+        option.textContent = group.file;
         fileSelector.add(option);
     });
     fileSelector.style.display = 'block';
     fileSelector.selectedIndex = -1;
+}
+
+function handleFileSelection(event) {
+    const selectedIndex = event.target.value;
+    const selectedGroup = filesData[selectedIndex];
+    currentFilename = selectedGroup.file;
+    const preprocessedData = preprocessDataForYaml(selectedGroup);
+    codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
+    document.getElementById('editorContainer').style.display = 'block';
 }
 
 function preprocessDataForYaml(selectedGroup) {
@@ -156,39 +128,38 @@ function createRule() {
     }
 }
 
-function saveRule() {
+async function saveRule() {
     const editedYaml = codeMirrorInstance.getValue();
     try {
         const modifiedData = jsyaml.load(editedYaml);
+        if (!modifiedData) {
+            throw new Error('The YAML is empty or not structured correctly.');
+        }
         const payload = JSON.stringify({ data: modifiedData });
-        const url = `http://localhost:5000/api/v1/rules/${encodeURIComponent(currentFilename)}`;
+        const filename = encodeURIComponent(currentFilename.split('/').pop());
 
-        fetch(url, {
+        const response = await fetch(`http://localhost:5000/api/v1/rules/${filename}?recreate=true`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: payload
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            displayModal('Rule saved successfully.');
-            document.getElementById('editorContainer').style.display = 'none';
-        })
-        .catch(error => {
-            displayModal('Error saving rule: ' + error.message);
-            console.error('Error:', error);
         });
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+        }
+
+        await response.json();
+        displayModal('Rule saved successfully.');
+        document.getElementById('editorContainer').style.display = 'none';
     } catch (error) {
-        displayModal('Error processing YAML: ' + error.message);
-        console.error('Error parsing YAML:', error);
+        displayModal(`Error saving rule: ${error.message}`);
+        console.error('Error:', error);
     }
 }
+
 
 function displayModal(message) {
     var modal = document.getElementById("myModal");
@@ -208,3 +179,180 @@ function displayModal(message) {
         }
     }
 }
+
+
+function displayRulesList(groups) {
+    const rulesListElement = document.getElementById('rulesList');
+    rulesListElement.innerHTML = ''; 
+
+    groups.forEach(group => {
+        group.rules.forEach(rule => {
+            
+            const ruleItem = document.createElement('div');
+            ruleItem.className = 'rule-item';
+
+            
+            const filenameDiv = document.createElement('div');
+            filenameDiv.textContent = group.file;
+            filenameDiv.className = 'filename';  
+            ruleItem.appendChild(filenameDiv);
+
+            
+            const typeLabel = document.createElement('span');
+            typeLabel.textContent = rule.type.charAt(0).toUpperCase() + rule.type.slice(1);
+            typeLabel.className = `rule-type ${rule.type.toLowerCase()}`;  
+            ruleItem.appendChild(typeLabel);
+
+            
+            const buttonsContainer = document.createElement('div');
+            buttonsContainer.className = 'buttons-container';
+
+            
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.className = 'edit-rule-btn';
+            editButton.addEventListener('click', () => editRule(group.file));
+            buttonsContainer.appendChild(editButton);
+
+            
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Remove';
+            deleteButton.className = 'remove-rule-btn';
+            deleteButton.addEventListener('click', () => removeRule(group.file));
+            buttonsContainer.appendChild(deleteButton);
+
+            
+            ruleItem.appendChild(buttonsContainer);
+
+            
+            rulesListElement.appendChild(ruleItem);
+        });
+    });
+}
+
+
+
+function editRule(filePath) {
+    currentFilename = filePath; 
+    fetchRuleDetails(filePath);
+    fetch(`http://localhost:5000/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!data || !data.data || !data.data.groups || data.data.groups.length === 0) {
+                console.error('No rules data found for:', currentFilename);
+                alert('No rules data found for the file.');
+                return;
+            }
+            
+            const preprocessedData = preprocessDataForYaml(data.data.groups[0]);
+            if (preprocessedData) {
+                codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
+                document.getElementById('editorContainer').style.display = 'block';
+                
+                setTimeout(() => codeMirrorInstance.refresh(), 1);
+            } else {
+                alert('Failed to process rules data.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching rule details:', error);
+            alert(`Error fetching rule details: ${error.message}`);
+        });
+}
+
+
+
+function removeRule(filename) {
+    
+    
+    console.log(`Remove rule: ${filename}`);
+    
+    fetchAndDisplayRules('alert'); 
+}
+
+function cancelEdit() {
+    
+    document.getElementById('editorContainer').style.display = 'none';
+    codeMirrorInstance.setValue('');
+    currentFilename = ''; 
+}
+
+function fetchRuleDetails(filePath) {
+    fetch(`http://localhost:5000/api/v1/rules?file[]=${encodeURIComponent(filePath)}`)
+        .then(response => response.json())
+        .then(data => {
+            
+            
+        })
+        .catch(error => {
+            console.error('Error fetching rule details:', error);
+        });
+}
+
+function setupEditor() {
+    const yamlEditor = document.getElementById('yamlEditor');
+    if (yamlEditor) {
+        codeMirrorInstance = CodeMirror.fromTextArea(yamlEditor, {
+            mode: 'yaml',
+            lineNumbers: true,
+            theme: 'monokai',
+            lineWrapping: true
+        });
+    }
+}
+
+function setupEventListeners() {
+    
+    document.getElementById('createRuleBtn')?.addEventListener('click', createRule);
+    document.getElementById('editAlertingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('alert'));
+    document.getElementById('editRecordingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('record'));
+    document.getElementById('fileSelector')?.addEventListener('change', handleFileSelection);
+    document.getElementById('saveBtn')?.addEventListener('click', saveRule);
+    document.getElementById('cancelBtn')?.addEventListener('click', cancelEdit);
+}
+
+function fetchAndDisplayAllRules() {
+    
+    fetchAndDisplayRules('alert');
+    fetchAndDisplayRules('record');
+}
+
+function removeRule(filename) {
+    if (!confirm("Are you sure you want to delete this rule?")) {
+        return;
+    }
+
+    
+    const filenameOnly = filename.split('/').pop();
+
+    fetch(`http://localhost:5000/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            
+            if(response.status !== 204) {
+                return response.json().then(err => {
+                    throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                });
+            }
+        }
+        
+        console.log('Rule deleted successfully.');
+        displayModal('Rule deleted successfully.');
+        fetchAndDisplayRules(); 
+    })
+    .catch(error => {
+        displayModal(`Error deleting rule: ${error.message}`);
+        console.error('Error:', error);
+    });
+}
+

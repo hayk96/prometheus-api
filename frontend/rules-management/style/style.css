@@ -1,41 +1,203 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #EDF2F7;
+    color: #333;
+}
+
+*, *:before, *:after {
+    box-sizing: border-box;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    background-color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.action-btn {
+    padding: 10px 25px;
+    background-color: #48BB78;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.action-btn:hover {
+    background-color: #38A169;
+}
+
+.search-bar {
+    padding: 10px 20px;
+    flex-grow: 1;
+    border-radius: 20px;
+    border: none;
+    transition: box-shadow 0.3s ease;
+    background-color: #F7FAFC;
+    margin-left: auto;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+}
+
+.search-bar::placeholder {
+    color: #A0AEC0;
+}
+
+.search-bar:focus {
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075), 0 0 8px rgba(72, 187, 120, 0.6);
+    outline: none;
+}
+
+.rules-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.rule-item {
+    background-color: #fff;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(50, 50, 93, 0.11);
+}
+
+.rule-item:hover {
+    box-shadow: 0 5px 15px rgba(50, 50, 93, 0.15);
+    transform: translateY(-2px);
+}
+
+.filename {
+    font-weight: bold;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.edit-rule-btn,
+.remove-rule-btn {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-rule-btn:hover,
+.remove-rule-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.rule-type {
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 14px;
+    text-transform: uppercase;
+    align-self: center;
+    margin-left: auto; /* Ensures label is aligned to the far right */
+}
+
+.rule-type.alerting {
+    background-color: #F56565;
+    color: white;
+}
+
+.rule-type.recording {
+    background-color: #3182ce;
+    color: white;
+}
+
 .modal {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
-  padding-top: 60px;
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
 }
 
 .modal-content {
-  background-color: #fefefe;
-  margin: 5% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 40px;
+    border-radius: 5px;
+    width: 40%;
 }
 
 .close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+    color: #333;
+    float: right;
+    font-size: 32px;
+    font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-button {
-    padding: 10px 15px;
-    margin-right: 10px;
-    cursor: pointer;
+.CodeMirror {
+    border: 1px solid #ccc;
+    font-size: 16px;
+    height: auto;
+}
+
+@media (max-width: 768px) {
+    .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-bar {
+        margin-top: 10px;
+        width: auto;
+    }
+
+    .action-btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .rule-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filename,
+    .button-container,
+    .rule-type {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .button-container {
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+
+    .rule-type {
+        order: 3;
+        margin-left: 0;
+    }
 }

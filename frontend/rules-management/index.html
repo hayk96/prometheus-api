@@ -9,20 +9,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
 </head>
 <body>
-    <button id="createRuleBtn">Create Rule</button>
-    <button id="editAlertingRulesBtn">Edit Alerting Rules</button>
-    <button id="editRecordingRulesBtn">Edit Recording Rules</button>
-    <select id="fileSelector" style="display:none; margin-top: 20px;"></select>
-    <div id="myModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <p id="modal-text">Some text in the Modal..</p>
-      </div>
+    <div class="toolbar">
+        <button id="createRuleBtn" class="action-btn create-btn">Create Rule</button>
+        <input type="text" id="searchInput" placeholder="Search..." class="search-bar">
     </div>
-    <div id="editorContainer" style="display:none;">
+    <div id="rulesList" class="rules-list">
+        <!-- Rule items will be populated here by script.js -->
+    </div>
+    <div id="editorContainer" class="editor-container" style="display:none;">
         <textarea id="yamlEditor"></textarea>
-        <button id="cancelBtn">Cancel</button>
-        <button id="saveBtn">Save</button>
+        <div class="editor-actions">
+            <button id="cancelBtn" class="action-btn cancel-btn">Cancel</button>
+            <button id="saveBtn" class="action-btn save-btn">Save</button>
+        </div>
+    </div>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <p id="modal-text">Some text in the Modal...</p>
+        </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
