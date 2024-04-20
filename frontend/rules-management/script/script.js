@@ -351,7 +351,10 @@ function setupEditor() {
 }
 
 function setupEventListeners() {
-    
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearchInput);
+    }
     document.getElementById('createRuleBtn')?.addEventListener('click', createRule);
     document.getElementById('editAlertingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('alert'));
     document.getElementById('editRecordingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('record'));
@@ -420,3 +423,12 @@ function removeRule(filePath) {
     cancelDeleteBtn.addEventListener('click', cancelDeletion);
 }
 
+function handleSearchInput(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    
+    const filteredGroups = filesData.filter(group =>
+        group.file.toLowerCase().includes(searchTerm)
+    );
+    
+    displayRulesList(filteredGroups);
+}
