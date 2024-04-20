@@ -37,6 +37,52 @@ body {
     background-color: #38A169;
 }
 
+.cancel-btn, .remove-rule-btn {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.gray-btn {
+    background-color: #838080;
+    color: #fff;
+}
+
+.save-btn {
+    background-color: #4CAF50; 
+    color: white; 
+}
+
+.apply-btn {
+    background-color: #4c77af;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.apply-btn:hover {
+    background-color: #4551a0;
+}
+
+.confirm-btn {
+    background-color: #f44336; 
+    color: white; 
+}
+
+#confirmDeleteBtn {
+    background-color: #dc3545;
+    color: white;
+}
+
+#cancelDeleteBtn {
+    background-color: #6c757d; 
+    color: white;
+    
+}
+
+
 .search-bar {
     padding: 10px 20px;
     flex-grow: 1;
@@ -169,7 +215,8 @@ body {
 
 .CodeMirror {
     border: 1px solid #ccc;
-    font-size: 16px;
+    font-size: 13px;
+    font-family: 'DINPro-Medium', serif;
     height: auto;
 }
 
@@ -214,21 +261,24 @@ body {
 }
 
 .modal-btn {
-    padding: 8px 16px;
-    margin-right: 10px;
-    background-color: #48BB78;
-    color: white;
+    padding: 10px 20px;
     border: none;
-    border-radius: 20px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 16px;
-    transition: background-color 0.3s ease;
+    margin: 0 5px;
+    transition: background-color 0.2s ease-in-out;
+    
 }
 
 .modal-btn:hover {
-    background-color: #38A169;
+    background-color: #d0d0d0;
 }
 
 .border-radius-standard {
     border-radius: 8px;
+}
+
+.gray-btn:hover {
+    background-color: #b0b0b0;
 }
