@@ -22,7 +22,7 @@ body {
 }
 
 .action-btn {
-    padding: 10px 25px;
+    padding: 8px 25px;
     background-color: #48BB78;
     color: white;
     border: none;
@@ -65,21 +65,31 @@ body {
 
 .rule-item {
     background-color: #fff;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    padding: 20px;
+    border-radius: 8px; 
+    margin-bottom: 8px; 
+    padding: 8px 12px; 
     display: flex;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(50, 50, 93, 0.11);
+    justify-content: space-between;
+    box-shadow: 0 1px 3px rgba(50, 50, 93, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); 
+    font-size: 0.85rem; 
+    line-height: 1.4; 
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
 }
 
+
 .rule-item:hover {
-    box-shadow: 0 5px 15px rgba(50, 50, 93, 0.15);
-    transform: translateY(-2px);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 2px 4px rgba(0, 0, 0, 0.08); 
 }
 
 .filename {
     font-weight: bold;
+}
+
+.filename, .rule-type {
+    
+    font-weight: bold; 
 }
 
 .button-container {
@@ -88,28 +98,28 @@ body {
     align-items: center;
 }
 
-.edit-rule-btn,
-.remove-rule-btn {
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
+.edit-rule-btn, .remove-rule-btn {
+    
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px; 
+    background-color: #e0e0e0; 
     color: #333;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease-in-out;
 }
 
-.edit-rule-btn:hover,
-.remove-rule-btn:hover {
-    background-color: #e0e0e0;
+.edit-rule-btn:hover, .remove-rule-btn:hover {
+    background-color: #d0d0d0; 
 }
 
 .rule-type {
-    padding: 5px 15px;
+    padding: 3px 15px;
     border-radius: 15px;
-    font-size: 14px;
-    text-transform: uppercase;
+    font-size: 13px;
+    text-transform: capitalize;
     align-self: center;
-    margin-left: auto; /* Ensures label is aligned to the far right */
+    margin-left: auto; 
 }
 
 .rule-type.alerting {
@@ -201,4 +211,24 @@ body {
         order: 3;
         margin-left: 0;
     }
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    margin-right: 10px;
+    background-color: #48BB78;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.modal-btn:hover {
+    background-color: #38A169;
+}
+
+.border-radius-standard {
+    border-radius: 8px;
 }
