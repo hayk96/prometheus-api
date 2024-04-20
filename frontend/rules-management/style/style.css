@@ -159,6 +159,42 @@ body {
     background-color: #d0d0d0; 
 }
 
+.edit-rule-icon {
+    width: 30px; 
+    height: 30px; 
+    
+    cursor: pointer;
+}
+
+.edit-rule-btn {
+    background: none; 
+    border: none; 
+    padding: 0; 
+    cursor: pointer;
+}
+
+.edit-rule-btn:hover .edit-rule-icon {
+    
+    opacity: 0.8;
+}
+
+.remove-rule-icon {
+    width: 30px; 
+    height: 30px; 
+    cursor: pointer;
+}
+
+.remove-rule-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.remove-rule-btn:hover .remove-rule-icon {
+    opacity: 0.8;
+}
+
 .rule-type {
     padding: 3px 15px;
     border-radius: 15px;
