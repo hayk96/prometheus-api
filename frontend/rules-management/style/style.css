@@ -48,8 +48,8 @@ body {
 }
 
 .save-btn {
-    background-color: #4CAF50; 
-    color: white; 
+    background-color: #4CAF50;
+    color: white;
 }
 
 .apply-btn {
@@ -67,8 +67,8 @@ body {
 }
 
 .confirm-btn {
-    background-color: #f44336; 
-    color: white; 
+    background-color: #f44336;
+    color: white;
 }
 
 #confirmDeleteBtn {
@@ -77,9 +77,9 @@ body {
 }
 
 #cancelDeleteBtn {
-    background-color: #6c757d; 
+    background-color: #6c757d;
     color: white;
-    
+
 }
 
 
@@ -111,22 +111,22 @@ body {
 
 .rule-item {
     background-color: #fff;
-    border-radius: 8px; 
-    margin-bottom: 8px; 
-    padding: 8px 12px; 
+    border-radius: 8px;
+    margin-bottom: 8px;
+    padding: 8px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(50, 50, 93, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); 
-    font-size: 0.85rem; 
-    line-height: 1.4; 
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; 
+    box-shadow: 0 1px 3px rgba(50, 50, 93, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 
 .rule-item:hover {
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 2px 4px rgba(0, 0, 0, 0.08); 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .filename {
@@ -134,8 +134,9 @@ body {
 }
 
 .filename, .rule-type {
-    
-    font-weight: bold; 
+
+    font-weight: bold;
+    color: rgba(77, 76, 76, 0.91);
 }
 
 .button-container {
@@ -145,36 +146,36 @@ body {
 }
 
 .edit-rule-btn, .remove-rule-btn {
-    
+
     padding: 5px 10px;
     border: none;
-    border-radius: 4px; 
-    background-color: #e0e0e0; 
+    border-radius: 4px;
+    background-color: #e0e0e0;
     color: #333;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
 }
 
 .edit-rule-btn:hover, .remove-rule-btn:hover {
-    background-color: #d0d0d0; 
+    background-color: #d0d0d0;
 }
 
 .edit-rule-icon {
-    width: 30px; 
-    height: 30px; 
-    
+    width: 30px;
+    height: 30px;
+
     cursor: pointer;
 }
 
 .edit-rule-btn {
-    background: none; 
-    border: none; 
-    padding: 0; 
+    background: none;
+    border: none;
+    padding: 0;
     cursor: pointer;
 }
 
 .edit-rule-btn:hover .edit-rule-icon {
-    
+
     opacity: 0.8;
 }
 
@@ -184,8 +185,8 @@ body {
 }
 
 .remove-rule-icon {
-    width: 30px; 
-    height: 30px; 
+    width: 30px;
+    height: 30px;
     cursor: pointer;
 }
 
@@ -206,7 +207,7 @@ body {
     font-size: 13px;
     text-transform: capitalize;
     align-self: center;
-    margin-left: auto; 
+    margin-left: auto;
 }
 
 .rule-type.alerting {
@@ -309,7 +310,7 @@ body {
     font-size: 16px;
     margin: 0 5px;
     transition: background-color 0.2s ease-in-out;
-    
+
 }
 
 .modal-btn:hover {

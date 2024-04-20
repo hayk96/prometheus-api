@@ -209,7 +209,7 @@ function displayModal(message) {
 
 function displayRulesList(groups) {
     const rulesListElement = document.getElementById('rulesList');
-    rulesListElement.innerHTML = ''; 
+    rulesListElement.innerHTML = '';
 
     groups.forEach((group, groupIndex) => {
         group.rules.forEach((rule, ruleIndex) => {
@@ -230,7 +230,7 @@ function displayRulesList(groups) {
             const buttonsContainer = document.createElement('div');
             buttonsContainer.className = 'buttons-container';
 
-            
+
             const editIcon = document.createElement('img');
             editIcon.src = 'https://cdn-icons-png.flaticon.com/128/10336/10336582.png';
             editIcon.alt = 'Edit';
