@@ -126,6 +126,9 @@ function createRule() {
         codeMirrorInstance.setValue('');
         document.getElementById('editorContainer').style.display = 'block';
     }
+    setTimeout(() => {
+        codeMirrorInstance.refresh();
+    }, 0);
 }
 
 async function saveRule() {
@@ -136,10 +139,14 @@ async function saveRule() {
             throw new Error('The YAML is empty or not structured correctly.');
         }
         const payload = JSON.stringify({ data: modifiedData });
-        const filename = encodeURIComponent(currentFilename.split('/').pop());
+        const filename = currentFilename ? encodeURIComponent(currentFilename.split('/').pop()) : '';
+        const method = currentFilename ? 'PUT' : 'POST';
+        const url = currentFilename ?
+            `http://localhost:5000/api/v1/rules/${filename}?recreate=true` :
+            `http://localhost:5000/api/v1/rules`;
 
-        const response = await fetch(`http://localhost:5000/api/v1/rules/${filename}?recreate=true`, {
-            method: 'PUT',
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -151,14 +158,19 @@ async function saveRule() {
             throw new Error(err.message || `HTTP error! status: ${response.status}`);
         }
 
-        await response.json();
+        await response.json(); 
         displayModal('Rule saved successfully.');
         document.getElementById('editorContainer').style.display = 'none';
+
+        
+        fetchAndDisplayAllRules();
     } catch (error) {
         displayModal(`Error saving rule: ${error.message}`);
         console.error('Error:', error);
     }
 }
+
+
 
 
 function displayModal(message) {
@@ -185,22 +197,24 @@ function displayRulesList(groups) {
     const rulesListElement = document.getElementById('rulesList');
     rulesListElement.innerHTML = ''; 
 
-    groups.forEach(group => {
-        group.rules.forEach(rule => {
-            
+    groups.forEach((group, groupIndex) => {
+        group.rules.forEach((rule, ruleIndex) => {
             const ruleItem = document.createElement('div');
             ruleItem.className = 'rule-item';
 
             
+            const filenameOnly = group.file.split('/').pop();
+
+            
             const filenameDiv = document.createElement('div');
-            filenameDiv.textContent = group.file;
-            filenameDiv.className = 'filename';  
+            filenameDiv.textContent = filenameOnly;
+            filenameDiv.className = 'filename'; 
             ruleItem.appendChild(filenameDiv);
 
             
             const typeLabel = document.createElement('span');
             typeLabel.textContent = rule.type.charAt(0).toUpperCase() + rule.type.slice(1);
-            typeLabel.className = `rule-type ${rule.type.toLowerCase()}`;  
+            typeLabel.className = `rule-type ${rule.type.toLowerCase()}`; 
             ruleItem.appendChild(typeLabel);
 
             
@@ -218,7 +232,10 @@ function displayRulesList(groups) {
             const deleteButton = document.createElement('button');
             deleteButton.textContent = 'Remove';
             deleteButton.className = 'remove-rule-btn';
-            deleteButton.addEventListener('click', () => removeRule(group.file));
+            deleteButton.addEventListener('click', () => {
+                
+                removeRule(group.file, groupIndex, ruleIndex);
+            });
             buttonsContainer.appendChild(deleteButton);
 
             
@@ -230,7 +247,43 @@ function displayRulesList(groups) {
     });
 }
 
+function removeRule(filePath, groupIndex, ruleIndex) {
+    if (!confirm("Are you sure you want to delete this rule?")) {
+        return;
+    }
 
+    
+    const filenameOnly = filePath.split('/').pop();
+
+    fetch(`http://localhost:5000/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            
+            if(response.status !== 204) {
+                return response.json().then(err => {
+                    throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                });
+            }
+        }
+        
+        if (filesData[groupIndex] && filesData[groupIndex].rules[ruleIndex]) {
+            filesData[groupIndex].rules.splice(ruleIndex, 1);
+            if (filesData[groupIndex].rules.length === 0) {
+                
+                filesData.splice(groupIndex, 1);
+            }
+            displayRulesList(filesData); 
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
 function editRule(filePath) {
     currentFilename = filePath; 
@@ -263,16 +316,6 @@ function editRule(filePath) {
             console.error('Error fetching rule details:', error);
             alert(`Error fetching rule details: ${error.message}`);
         });
-}
-
-
-
-function removeRule(filename) {
-    
-    
-    console.log(`Remove rule: ${filename}`);
-    
-    fetchAndDisplayRules('alert'); 
 }
 
 function cancelEdit() {
@@ -322,37 +365,57 @@ function fetchAndDisplayAllRules() {
     fetchAndDisplayRules('record');
 }
 
-function removeRule(filename) {
-    if (!confirm("Are you sure you want to delete this rule?")) {
-        return;
-    }
+function removeRule(filePath) {
+    
+    const filenameOnly = filePath.split('/').pop();
+
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteMessage = document.getElementById('deleteMessage');
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
     
-    const filenameOnly = filename.split('/').pop();
+    deleteMessage.textContent = `Are you sure you want to delete the file: ${filenameOnly}?`;
+    deleteModal.style.display = 'block';
 
-    fetch(`http://localhost:5000/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            
-            if(response.status !== 204) {
+    
+    function confirmDeletion() {
+        
+        fetch(`http://localhost:5000/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok && response.status !== 204) {
                 return response.json().then(err => {
                     throw new Error(err.message || `HTTP error! status: ${response.status}`);
                 });
             }
-        }
+            displayModal('Rule deleted successfully.');
+            fetchAndDisplayRules(); 
+        })
+        .catch(error => {
+            displayModal(`Error deleting rule: ${error.message}`);
+            console.error('Error:', error);
+        });
+
         
-        console.log('Rule deleted successfully.');
-        displayModal('Rule deleted successfully.');
-        fetchAndDisplayRules(); 
-    })
-    .catch(error => {
-        displayModal(`Error deleting rule: ${error.message}`);
-        console.error('Error:', error);
-    });
+        deleteModal.style.display = 'none';
+        confirmDeleteBtn.removeEventListener('click', confirmDeletion);
+        cancelDeleteBtn.removeEventListener('click', cancelDeletion);
+    }
+
+    
+    function cancelDeletion() {
+        deleteModal.style.display = 'none';
+        confirmDeleteBtn.removeEventListener('click', confirmDeletion);
+        cancelDeleteBtn.removeEventListener('click', cancelDeletion);
+    }
+
+    
+    confirmDeleteBtn.addEventListener('click', confirmDeletion);
+    cancelDeleteBtn.addEventListener('click', cancelDeletion);
 }
 
