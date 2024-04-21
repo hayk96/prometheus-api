@@ -14,7 +14,6 @@
         <input type="text" id="searchInput" placeholder="Search..." class="search-bar">
     </div>
     <div id="rulesList" class="rules-list">
-        <!-- Rule items will be populated here by script.js -->
     </div>
     <div id="editorContainer" class="editor-container" style="display:none;">
         <textarea id="yamlEditor"></textarea>
@@ -35,6 +34,15 @@
             <p id="deleteMessage">Are you sure you want to delete this rule?</p>
             <button id="confirmDeleteBtn" class="modal-btn">Confirm</button>
             <button id="cancelDeleteBtn" class="modal-btn">Cancel</button>
+        </div>
+    </div>
+    <div id="createRuleModal" class="modal">
+        <div class="modal-content">
+            <h2>Create New Rule</h2>
+            <input type="text" id="newRuleName" placeholder="Enter file name" class="modal-input" />
+            <div id="createRuleError" class="modal-error-message"></div>
+            <button id="submitNewRule" class="modal-btn modal-btn-confirm">Next</button>
+            <button id="cancelCreateRuleBtn" class="modal-btn modal-btn-cancel">Cancel</button>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>

@@ -45,9 +45,35 @@ function handleFileSelection(event) {
     const selectedGroup = filesData[selectedIndex];
     currentFilename = selectedGroup.file;
     const preprocessedData = preprocessDataForYaml(selectedGroup);
-    codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
+
+    
     document.getElementById('editorContainer').style.display = 'block';
+
+    
+    codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
+
+    
+    setTimeout(function() {
+        codeMirrorInstance.refresh();
+    }, 0); 
 }
+
+
+function openEditorWithNewFilename(filename) {
+    
+    document.getElementById('editorContainer').style.display = 'block';
+    codeMirrorInstance.setValue('');
+
+    
+    setTimeout(function() {
+        codeMirrorInstance.refresh();
+    }, 0);
+
+    
+    currentFilename = filename;
+}
+
+
 
 function preprocessDataForYaml(selectedGroup) {
     let groupType = selectedGroup.rules[0]?.type;
@@ -119,35 +145,17 @@ function convertDurationToHumanReadable(duration) {
     return result;
 }
 
-function createRule() {
-    const filename = prompt("Please enter the filename for the new rule:", "");
-    if (filename) {
-        currentFilename = filename;
-        codeMirrorInstance.setValue('');
-        document.getElementById('editorContainer').style.display = 'block';
-        setTimeout(() => {
-            codeMirrorInstance.refresh();
-        }, 0);
-    } else {
-        currentFilename = ''; 
-    }
-    const cancelBtn = document.getElementById('cancelBtn');
-    if (cancelBtn) {
-        cancelBtn.classList.add('gray-btn');
-    }
-}
-
 
 async function saveRule() {
     const cancelBtn = document.getElementById('cancelBtn');
-    cancelBtn.classList.add('gray-btn');  
+    cancelBtn.classList.add('gray-btn');
 
     const editedYaml = codeMirrorInstance.getValue();
     try {
         const modifiedData = jsyaml.load(editedYaml);
 
         if (!modifiedData) {
-            cancelBtn.classList.remove('gray-btn');  
+            cancelBtn.classList.remove('gray-btn');
             throw new Error('The YAML is empty or not structured correctly.');
         }
         const payload = JSON.stringify({ data: modifiedData });
@@ -164,7 +172,7 @@ async function saveRule() {
 
         if (!response.ok) {
             const err = await response.json();
-            cancelBtn.classList.remove('gray-btn');  
+            cancelBtn.classList.remove('gray-btn');
             throw new Error(err.message || `HTTP error! status: ${response.status}`);
         }
 
@@ -176,15 +184,14 @@ async function saveRule() {
         displayModal(`Error saving rule: ${error.message}`);
         console.error('Error:', error);
     } finally {
-        
+
         document.getElementById('editorContainer').style.display = 'none';
         codeMirrorInstance.setValue('');
-        currentFilename = ''; 
-        cancelBtn.classList.remove('gray-btn');  
-        fetchAndDisplayRules(); 
+        currentFilename = '';
+        cancelBtn.classList.remove('gray-btn');
+        fetchAndDisplayRules();
     }
 }
-
 
 
 function displayModal(message) {
@@ -205,7 +212,6 @@ function displayModal(message) {
         }
     }
 }
-
 
 function displayRulesList(groups) {
     const rulesListElement = document.getElementById('rulesList');
@@ -332,18 +338,45 @@ function setupEditor() {
 }
 
 function setupEventListeners() {
+    
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', handleSearchInput);
+    } else {
+        console.error('Search input not found');
     }
-    document.getElementById('createRuleBtn')?.addEventListener('click', createRule);
+
+    
+    const createRuleBtn = document.getElementById('createRuleBtn');
+    if (createRuleBtn) {
+        createRuleBtn.addEventListener('click', openCreateRuleModal);  
+    } else {
+        console.error('Create rule button not found');
+    }
+
+    
+    const submitNewRuleBtn = document.getElementById('submitNewRule');
+    if (submitNewRuleBtn) {
+        submitNewRuleBtn.addEventListener('click', submitNewRule);  
+    } else {
+        console.error('Submit new rule button not found');
+    }
+
+    
+    const cancelCreateRuleBtn = document.getElementById('cancelCreateRuleBtn');
+    if (cancelCreateRuleBtn) {
+        cancelCreateRuleBtn.addEventListener('click', closeCreateRuleModal);
+    } else {
+        console.error('cancelCreateRuleBtn not found');
+    }
+
+    
     document.getElementById('editAlertingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('alert'));
     document.getElementById('editRecordingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('record'));
     document.getElementById('fileSelector')?.addEventListener('change', handleFileSelection);
     document.getElementById('saveBtn')?.addEventListener('click', saveRule);
     document.getElementById('cancelBtn')?.addEventListener('click', cancelEdit);
-    document.getElementById('applyBtn').addEventListener('click', applyChanges);
-
+    document.getElementById('applyBtn')?.addEventListener('click', applyChanges);
 }
 
 function fetchAndDisplayAllRules() {
@@ -364,10 +397,6 @@ function removeRule(filePath) {
     deleteModal.style.display = 'block';
 
     function confirmDeletion() {
-        deleteModal.style.display = 'none';
-        confirmDeleteBtn.removeEventListener('click', confirmDeletion);
-        cancelDeleteBtn.removeEventListener('click', cancelDeletion);
-
         fetch(`http://localhost:5000/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
             method: 'DELETE',
             headers: {
@@ -375,21 +404,37 @@ function removeRule(filePath) {
             }
         })
         .then(response => {
-            if (!response.ok && response.status !== 204) {
+            if (response.ok && response.status === 204) {
+                
+                return null;
+            } else if (!response.ok) {
+                
                 return response.json().then(err => {
                     throw new Error(err.message || `HTTP error! status: ${response.status}`);
                 });
             }
-            const index = filesData.findIndex(group => group.file === filePath);
-            if (index > -1) {
-                filesData.splice(index, 1);
-                displayRulesList(filesData);
+            return response.json();
+        })
+        .then(data => {
+            if (data) {
+                
+                displayModal(data.message || 'Rule deleted successfully.');
+            } else {
+                
+                displayModal('Rule deleted successfully.');
             }
-            displayModal('Rule deleted successfully.');
+            
+            fetchAndDisplayRules();
         })
         .catch(error => {
             displayModal(`Error deleting rule: ${error.message}`);
             console.error('Error:', error);
+        })
+        .finally(() => {
+            
+            deleteModal.style.display = 'none';
+            confirmDeleteBtn.removeEventListener('click', confirmDeletion);
+            cancelDeleteBtn.removeEventListener('click', cancelDeletion);
         });
     }
 
@@ -402,6 +447,7 @@ function removeRule(filePath) {
     confirmDeleteBtn.addEventListener('click', confirmDeletion);
     cancelDeleteBtn.addEventListener('click', cancelDeletion);
 }
+
 
 function handleSearchInput(event) {
     const searchTerm = event.target.value.toLowerCase();
@@ -449,4 +495,48 @@ function applyChanges() {
         displayModal(`Error processing YAML: ${error.message}`);
         console.error('Error parsing YAML:', error);
     }
+}
+
+function openCreateRuleModal() {
+    const modal = document.getElementById('createRuleModal');
+    const newRuleNameInput = document.getElementById('newRuleName');
+    newRuleNameInput.value = ''; 
+    newRuleNameInput.focus(); 
+    modal.style.display = 'block'; 
+    const cancelBtn = document.getElementById('cancelBtn');
+    if (cancelBtn) {
+        cancelBtn.classList.add('gray-btn');
+    }
+}
+
+function closeCreateRuleModal() {
+    const modal = document.getElementById('createRuleModal');
+    modal.style.display = 'none'; 
+}
+
+function submitNewRule() {
+    const newRuleNameInput = document.getElementById('newRuleName');
+    const newRuleName = newRuleNameInput.value.trim();
+    const createRuleError = document.getElementById('createRuleError'); 
+
+    
+    createRuleError.textContent = '';
+
+    
+    if (newRuleName === '') {
+        createRuleError.textContent = 'Please enter a filename for the new rule.';
+        return;
+    }
+
+    if (filesData.some(group => group.file.split('/').pop() === newRuleName)) {
+        createRuleError.textContent = 'A rule with this filename already exists. Please enter another name.';
+        return;
+    }
+
+    document.getElementById('createRuleModal').style.display = 'none';
+    currentFilename = newRuleName; 
+    document.getElementById('editorContainer').style.display = 'block';
+    codeMirrorInstance.setValue(''); 
+    codeMirrorInstance.focus(); 
+    openEditorWithNewFilename(newRuleName);
 }
