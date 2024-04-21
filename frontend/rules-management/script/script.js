@@ -1,3 +1,4 @@
+const PROMETHEUS_API_ADDR = 'http://localhost:5000';
 let filesData = [];
 let currentFilename = '';
 let codeMirrorInstance;
@@ -9,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function fetchAndDisplayRules() {
-    fetch(`http://localhost:5000/api/v1/rules`)
+    fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -162,7 +163,7 @@ async function saveRule() {
 
         const isNewRule = !currentFilename.includes('/');
         const filename = encodeURIComponent(isNewRule ? currentFilename : currentFilename.split('/').pop());
-        const url = `http://localhost:5000/api/v1/rules/${filename}${isNewRule ? '' : '?recreate=true'}`;
+        const url = `${PROMETHEUS_API_ADDR}/api/v1/rules/${filename}${isNewRule ? '' : '?recreate=true'}`;
 
         const response = await fetch(url, {
             method: 'PUT',
@@ -269,7 +270,7 @@ function displayRulesList(groups) {
 function editRule(filePath) {
     currentFilename = filePath;
     fetchRuleDetails(filePath);
-    fetch(`http://localhost:5000/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
+    fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -314,7 +315,7 @@ function cancelEdit() {
 }
 
 function fetchRuleDetails(filePath) {
-    fetch(`http://localhost:5000/api/v1/rules?file[]=${encodeURIComponent(filePath)}`)
+    fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(filePath)}`)
         .then(response => response.json())
         .then(data => {
             
@@ -397,7 +398,7 @@ function removeRule(filePath) {
     deleteModal.style.display = 'block';
 
     function confirmDeletion() {
-        fetch(`http://localhost:5000/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
+        fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -468,7 +469,7 @@ function applyChanges() {
         }
         const payload = JSON.stringify({ data: modifiedData });
         const filename = currentFilename ? encodeURIComponent(currentFilename.split('/').pop()) : '';
-        const url = `http://localhost:5000/api/v1/rules/${filename}${currentFilename ? '?recreate=true' : ''}`;
+        const url = `${PROMETHEUS_API_ADDR}/api/v1/rules/${filename}${currentFilename ? '?recreate=true' : ''}`;
 
         fetch(url, {
             method: 'PUT',
