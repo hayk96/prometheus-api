@@ -381,6 +381,9 @@ function setupEventListeners() {
     document.getElementById('homeBtn').addEventListener('click', function() {
         window.location.href = PROMETHEUS_API_ADDR;
     });
+    document.getElementById('prometheusBtn').addEventListener('click', function() {
+        window.location.href = PROMETHEUS_API_ADDR + "/graph";
+    });
 }
 
 function fetchAndDisplayAllRules() {
