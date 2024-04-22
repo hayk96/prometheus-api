@@ -389,3 +389,19 @@ body {
 .gray-btn:hover {
     background-color: #b0b0b0;
 }
+
+#homeBtn {
+    background-image: url('https://cdn-icons-png.flaticon.com/128/5974/5974636.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 40px;
+    height: 40px;
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+#homeBtn:hover {
+    background-color: transparent;
+}

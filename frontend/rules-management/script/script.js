@@ -378,6 +378,9 @@ function setupEventListeners() {
     document.getElementById('saveBtn')?.addEventListener('click', saveRule);
     document.getElementById('cancelBtn')?.addEventListener('click', cancelEdit);
     document.getElementById('applyBtn')?.addEventListener('click', applyChanges);
+    document.getElementById('homeBtn').addEventListener('click', function() {
+        window.location.href = PROMETHEUS_API_ADDR;
+    });
 }
 
 function fetchAndDisplayAllRules() {
