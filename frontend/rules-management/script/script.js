@@ -148,22 +148,16 @@ function convertDurationToHumanReadable(duration) {
 
 
 async function saveRule() {
-    const cancelBtn = document.getElementById('cancelBtn');
-    cancelBtn.classList.add('gray-btn');
-
     const editedYaml = codeMirrorInstance.getValue();
     try {
         const modifiedData = jsyaml.load(editedYaml);
 
         if (!modifiedData) {
-            cancelBtn.classList.remove('gray-btn');
             throw new Error('The YAML is empty or not structured correctly.');
         }
         const payload = JSON.stringify({ data: modifiedData });
-
-        const isNewRule = !currentFilename.includes('/');
-        const filename = encodeURIComponent(isNewRule ? currentFilename : currentFilename.split('/').pop());
-        const url = `${PROMETHEUS_API_ADDR}/api/v1/rules/${filename}${isNewRule ? '' : '?recreate=true'}`;
+        const filename = currentFilename ? encodeURIComponent(currentFilename.split('/').pop()) : '';
+        const url = `${PROMETHEUS_API_ADDR}/api/v1/rules/${filename}${currentFilename ? '?recreate=true' : ''}`;
 
         const response = await fetch(url, {
             method: 'PUT',
@@ -172,25 +166,20 @@ async function saveRule() {
         });
 
         if (!response.ok) {
-            const err = await response.json();
-            cancelBtn.classList.remove('gray-btn');
-            throw new Error(err.message || `HTTP error! status: ${response.status}`);
+            return response.json().then(err => {
+                throw new Error(err.message || `HTTP error! status: ${response.status}`);
+            });
         }
-
-        if (response.status !== 204) {
-            await response.json();
-        }
+        await response.json();
         displayModal('Rule saved successfully.');
+        document.getElementById('rulesList').style.display = 'block';  
     } catch (error) {
         displayModal(`Error saving rule: ${error.message}`);
         console.error('Error:', error);
     } finally {
-
         document.getElementById('editorContainer').style.display = 'none';
         codeMirrorInstance.setValue('');
         currentFilename = '';
-        cancelBtn.classList.remove('gray-btn');
-        fetchAndDisplayRules();
     }
 }
 
@@ -288,7 +277,7 @@ function editRule(filePath) {
             if (preprocessedData) {
                 codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
                 document.getElementById('editorContainer').style.display = 'block';
-
+                document.getElementById('rulesList').style.display = 'none';
                 setTimeout(() => codeMirrorInstance.refresh(), 1);
             } else {
                 alert('Failed to process rules data.');
@@ -310,8 +299,9 @@ function cancelEdit() {
         cancelBtn.classList.remove('gray-btn');
     }
     document.getElementById('editorContainer').style.display = 'none';
+    document.getElementById('rulesList').style.display = 'block';  
     codeMirrorInstance.setValue('');
-    currentFilename = ''; 
+    currentFilename = '';
 }
 
 function fetchRuleDetails(filePath) {
