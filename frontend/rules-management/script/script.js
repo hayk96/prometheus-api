@@ -239,7 +239,7 @@ function displayRulesList(groups) {
             buttonsContainer.appendChild(editButton);
 
             const removeIcon = document.createElement('img');
-            removeIcon.src = 'https://cdn-icons-png.flaticon.com/128/9790/9790368.png'; 
+            removeIcon.src = 'https://cdn-icons-png.flaticon.com/128/9790/9790368.png';
             removeIcon.alt = 'Remove';
             removeIcon.className = 'remove-rule-icon';
 
@@ -353,14 +353,18 @@ function setupEventListeners() {
         console.error('Submit new rule button not found');
     }
 
-    
     const cancelCreateRuleBtn = document.getElementById('cancelCreateRuleBtn');
     if (cancelCreateRuleBtn) {
-        cancelCreateRuleBtn.addEventListener('click', closeCreateRuleModal);
+        cancelCreateRuleBtn.addEventListener('click', function() {
+            document.getElementById('editorContainer').style.display = 'none';
+            document.getElementById('createRuleModal').style.display = 'none';
+            codeMirrorInstance.setValue('');
+            document.getElementById('rulesList').style.display = 'block';
+            currentFilename = '';
+        });
     } else {
-        console.error('cancelCreateRuleBtn not found');
+        console.error('Cancel Create Rule Button not found');
     }
-
     
     document.getElementById('editAlertingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('alert'));
     document.getElementById('editRecordingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('record'));
@@ -497,14 +501,26 @@ function applyChanges() {
 function openCreateRuleModal() {
     const modal = document.getElementById('createRuleModal');
     const newRuleNameInput = document.getElementById('newRuleName');
-    newRuleNameInput.value = ''; 
-    newRuleNameInput.focus(); 
-    modal.style.display = 'block'; 
+    newRuleNameInput.value = '';
+    newRuleNameInput.focus();
+    modal.style.display = 'block';
+
+    cancelCreateRuleBtn
+    document.getElementById('rulesList').style.display = 'none';
+    document.getElementById('editorContainer').style.display = 'block';  cancelCreateRuleBtn
+    codeMirrorInstance.setValue(''); cancelCreateRuleBtn
+    currentFilename = ''; cancelCreateRuleBtn
+
+    setTimeout(function() {
+        codeMirrorInstance.refresh();
+    }, 0);
+
     const cancelBtn = document.getElementById('cancelBtn');
     if (cancelBtn) {
         cancelBtn.classList.add('gray-btn');
     }
 }
+
 
 function closeCreateRuleModal() {
     const modal = document.getElementById('createRuleModal');
