@@ -323,6 +323,9 @@ body {
     border: 1px solid #ccc;
     font-size: 13px;
     font-family: 'DINPro-Medium', serif;
+    resize: vertical;
+    overflow: auto;
+    max-height: 90vh;
     height: auto;
 }
 
