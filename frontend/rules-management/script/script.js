@@ -29,18 +29,6 @@ function fetchAndDisplayRules() {
         });
 }
 
-function populateFileSelector(groups) {
-    const fileSelector = document.getElementById('fileSelector');
-    fileSelector.innerHTML = '';
-    groups.forEach((group, index) => {
-        const option = new Option(group.file, index);
-        option.textContent = group.file;
-        fileSelector.add(option);
-    });
-    fileSelector.style.display = 'block';
-    fileSelector.selectedIndex = -1;
-}
-
 function handleFileSelection(event) {
     const selectedIndex = event.target.value;
     const selectedGroup = filesData[selectedIndex];
