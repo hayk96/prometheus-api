@@ -135,7 +135,7 @@ function convertDurationToHumanReadable(duration) {
     } else if (duration >= second) {
         result += Math.floor(duration / second) + 's';
         duration %= second;
-    } else if (duration > 0) {
+    } else if (duration >= 0) {
         result += duration + 'ms';
     }
 
@@ -162,13 +162,17 @@ async function saveRule() {
         });
 
         if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.message || `HTTP error! status: ${response.status}`);
-            });
+            const err = await response.json();
+            throw new Error(err.message || `HTTP error! status: ${response.status}`);
         }
-        await response.json();
+
+        await response.json(); 
+
         displayModal('Rule saved successfully.');
-        document.getElementById('rulesList').style.display = 'block';  
+        
+        fetchAndDisplayAllRules();  
+
+        document.getElementById('rulesList').style.display = 'block';
     } catch (error) {
         displayModal(`Error saving rule: ${error.message}`);
         console.error('Error:', error);
