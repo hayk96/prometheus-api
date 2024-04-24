@@ -76,40 +76,27 @@ function openEditorWithNewFilename(filename) {
 
 
 
-function preprocessDataForYaml(selectedGroup) {
-    let groupType = selectedGroup.rules[0]?.type;
-
-    if (!groupType) {
-        console.error('Rule type is undefined.');
-        return null;
-    }
-
-    let processedRules = selectedGroup.rules.map(rule => {
-        if (rule.type === 'alerting') {
-            return {
-                alert: rule.name,
-                expr: rule.query,
-                for: convertDurationToHumanReadable(rule.duration),
-                labels: rule.labels,
-                annotations: rule.annotations
-            };
-        } else if (rule.type === 'recording') {
-            return {
-                record: rule.name,
-                expr: rule.query,
-                labels: rule.labels,
-                annotations: rule.annotations
-            };
-        }
+function preprocessDataForYaml(group) {
+    let processedRules = group.rules.map(rule => {
+        
+        return {
+            alert: rule.name,
+            expr: rule.query,
+            for: convertDurationToHumanReadable(rule.duration),
+            labels: rule.labels,
+            annotations: rule.annotations
+            
+        };
     });
 
-    let processedGroup = {
-        name: selectedGroup.name,
-        rules: processedRules.filter(Boolean)
+    
+    return {
+        name: group.name,
+        rules: processedRules
     };
-
-    return { groups: [processedGroup] };
 }
+
+
 
 function convertDurationToHumanReadable(duration) {
     const second = 1;
@@ -278,24 +265,26 @@ function displayRulesList(groups) {
 
 function editRule(filePath) {
     currentFilename = filePath;
-    fetchRuleDetails(filePath);
+
     fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            if (!data || !data.data || !data.data.groups || data.data.groups.length === 0) {
-                console.error('No rules data found for:', currentFilename);
+            if (!data || !data.data || !data.data.groups) {
+                console.error('Invalid structure in response:', data);
                 alert('No rules data found for the file.');
                 return;
             }
 
-            const preprocessedData = preprocessDataForYaml(data.data.groups[0]);
-            if (preprocessedData) {
-                codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
+            
+            let groupsContent = data.data.groups
+                .filter(group => group.file === currentFilename)
+                .map(preprocessDataForYaml);
+
+            
+            let yamlContent = jsyaml.dump({ groups: groupsContent }, { indent: 2 });
+
+            if (yamlContent) {
+                codeMirrorInstance.setValue(yamlContent);
                 document.getElementById('editorContainer').style.display = 'block';
                 document.getElementById('rulesList').style.display = 'none';
                 setTimeout(() => codeMirrorInstance.refresh(), 1);
@@ -307,11 +296,9 @@ function editRule(filePath) {
             console.error('Error fetching rule details:', error);
             alert(`Error fetching rule details: ${error.message}`);
         });
-        const cancelBtn = document.getElementById('cancelBtn');
-        if (cancelBtn) {
-            cancelBtn.classList.add('gray-btn');
-        }
 }
+
+
 
 function cancelEdit() {
     const cancelBtn = document.getElementById('cancelBtn');
