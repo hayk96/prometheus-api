@@ -327,6 +327,7 @@ body {
     overflow: auto;
     max-height: 90vh;
     height: auto;
+    min-height: 400px;
 }
 
 @media (max-width: 768px) {
@@ -461,7 +462,7 @@ body {
 
 @media (max-width: 768px) {
     .sidebar {
-        width: 60px; 
+        width: 60px;
     }
 
     .sidebar:hover {
