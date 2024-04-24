@@ -79,22 +79,31 @@ function openEditorWithNewFilename(filename) {
 function preprocessDataForYaml(group) {
     let processedRules = group.rules.map(rule => {
         
-        return {
+        let baseRule = {
             alert: rule.name,
             expr: rule.query,
-            for: convertDurationToHumanReadable(rule.duration),
             labels: rule.labels,
             annotations: rule.annotations
-            
         };
+
+        if (rule.type === 'alerting') {
+            
+            baseRule.for = convertDurationToHumanReadable(rule.duration);
+        } else if (rule.type === 'recording') {
+            
+            baseRule.record = baseRule.alert;
+            delete baseRule.alert;  
+        }
+
+        return baseRule;
     });
 
-    
     return {
         name: group.name,
         rules: processedRules
     };
 }
+
 
 
 
@@ -265,7 +274,6 @@ function displayRulesList(groups) {
 
 function editRule(filePath) {
     currentFilename = filePath;
-
     fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
         .then(response => response.json())
         .then(data => {
@@ -275,12 +283,10 @@ function editRule(filePath) {
                 return;
             }
 
-            
             let groupsContent = data.data.groups
                 .filter(group => group.file === currentFilename)
                 .map(preprocessDataForYaml);
 
-            
             let yamlContent = jsyaml.dump({ groups: groupsContent }, { indent: 2 });
 
             if (yamlContent) {
@@ -297,8 +303,6 @@ function editRule(filePath) {
             alert(`Error fetching rule details: ${error.message}`);
         });
 }
-
-
 
 function cancelEdit() {
     const cancelBtn = document.getElementById('cancelBtn');
