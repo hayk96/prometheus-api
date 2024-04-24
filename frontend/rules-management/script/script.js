@@ -207,51 +207,71 @@ function displayRulesList(groups) {
     const rulesListElement = document.getElementById('rulesList');
     rulesListElement.innerHTML = '';
 
-    groups.forEach((group, groupIndex) => {
-        group.rules.forEach((rule, ruleIndex) => {
-            const ruleItem = document.createElement('div');
-            ruleItem.className = 'rule-item';
+    
+    const rulesByFilename = groups.reduce((acc, group) => {
+        const filename = group.file.split('/').pop();
+        if (!acc[filename]) {
+            acc[filename] = {
+                filename: filename,
+                types: [],
+                path: group.file,
+                groupIndex: groups.indexOf(group)  
+            };
+        }
 
-            const filenameOnly = group.file.split('/').pop();
-            const filenameDiv = document.createElement('div');
-            filenameDiv.textContent = filenameOnly;
-            filenameDiv.className = 'filename';
-            ruleItem.appendChild(filenameDiv);
-
-            const typeLabel = document.createElement('span');
-            typeLabel.textContent = rule.type.charAt(0).toUpperCase() + rule.type.slice(1);
-            typeLabel.className = `rule-type ${rule.type.toLowerCase()}`;
-            ruleItem.appendChild(typeLabel);
-
-            const buttonsContainer = document.createElement('div');
-            buttonsContainer.className = 'buttons-container';
-
-
-            const editIcon = document.createElement('img');
-            editIcon.src = 'https://cdn-icons-png.flaticon.com/128/10336/10336582.png';
-            editIcon.alt = 'Edit';
-            editIcon.className = 'edit-rule-icon';
-
-            const editButton = document.createElement('button');
-            editButton.className = 'edit-rule-btn';
-            editButton.appendChild(editIcon);
-            editButton.addEventListener('click', () => editRule(group.file));
-            buttonsContainer.appendChild(editButton);
-
-            const removeIcon = document.createElement('img');
-            removeIcon.src = 'https://cdn-icons-png.flaticon.com/128/9790/9790368.png';
-            removeIcon.alt = 'Remove';
-            removeIcon.className = 'remove-rule-icon';
-
-            const deleteButton = document.createElement('button');
-            deleteButton.className = 'remove-rule-btn';
-            deleteButton.appendChild(removeIcon);
-            deleteButton.addEventListener('click', () => removeRule(group.file, groupIndex, ruleIndex));
-            buttonsContainer.appendChild(deleteButton);
-
-            ruleItem.appendChild(buttonsContainer);
-            rulesListElement.appendChild(ruleItem);
+        
+        group.rules.forEach(rule => {
+            if (!acc[filename].types.includes(rule.type)) {
+                acc[filename].types.push(rule.type);
+            }
         });
+        return acc;
+    }, {});
+
+    
+    Object.values(rulesByFilename).forEach(({ filename, types, path, groupIndex }) => {
+        const ruleItem = document.createElement('div');
+        ruleItem.className = 'rule-item';
+
+        const filenameDiv = document.createElement('div');
+        filenameDiv.textContent = filename;
+        filenameDiv.className = 'filename';
+        ruleItem.appendChild(filenameDiv);
+
+        types.forEach(type => {
+            const typeLabel = document.createElement('span');
+            typeLabel.textContent = type.charAt(0).toUpperCase() + type.slice(1); 
+            typeLabel.className = `rule-type ${type.toLowerCase()}`;
+            ruleItem.appendChild(typeLabel);
+        });
+
+        const buttonsContainer = document.createElement('div');
+        buttonsContainer.className = 'buttons-container';
+
+        const editIcon = document.createElement('img');
+        editIcon.src = 'https://cdn-icons-png.flaticon.com/128/10336/10336582.png';
+        editIcon.alt = 'Edit';
+        editIcon.className = 'edit-rule-icon';
+
+        const editButton = document.createElement('button');
+        editButton.className = 'edit-rule-btn';
+        editButton.appendChild(editIcon);
+        editButton.addEventListener('click', () => editRule(path));
+        buttonsContainer.appendChild(editButton);
+
+        const removeIcon = document.createElement('img');
+        removeIcon.src = 'https://cdn-icons-png.flaticon.com/128/9790/9790368.png';
+        removeIcon.alt = 'Remove';
+        removeIcon.className = 'remove-rule-icon';
+
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'remove-rule-btn';
+        deleteButton.appendChild(removeIcon);
+        deleteButton.addEventListener('click', () => removeRule(path, groupIndex));
+        buttonsContainer.appendChild(deleteButton);
+
+        ruleItem.appendChild(buttonsContainer);
+        rulesListElement.appendChild(ruleItem);
     });
 }
 
