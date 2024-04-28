@@ -8,21 +8,21 @@ router = APIRouter()
 homepage = "ui/homepage"
 rules_management = "ui/rules-management"
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse, include_in_schema=False)
 async def home_page():
     with open(f"{homepage}/index.html", "r") as html:
         return html.read()
 
-@router.get("/script.js", response_class=Response)
+@router.get("/script.js", response_class=Response, include_in_schema=False)
 async def rules_management_page():
     with open(f"{rules_management}/script.js", "r") as html:
         return html.read()
 
-@router.get("/style.css", response_class=Response)
+@router.get("/style.css", response_class=Response, include_in_schema=False)
 async def rules_management_page():
     with open(f"{rules_management}/style.css", "r") as html:
         return html.read()
 
-@router.get("/rules-management")
+@router.get("/rules-management", include_in_schema=False)
 async def rules_management_page():
     return FileResponse(f"{rules_management}/index.html")
