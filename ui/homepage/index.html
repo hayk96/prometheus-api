@@ -158,7 +158,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="http://localhost:5000/redoc" class="nav-link">
+                <a href="#" id="apiDocumentationLink" class="nav-link">
                     <img src="https://raw.githubusercontent.com/hayk96/prometheus-api/frontend/docs/images/web-code.png" alt="Prometheus Docs Logo">API Documentation
                 </a>
             </li>
@@ -166,8 +166,19 @@
     </nav>
     <div class="container">
         <h1>Extended HTTP API service for Prometheus</h1>
-        <button onclick="window.location.href='http://localhost:5000/graph'">Open Prometheus</button>
-        <button onclick="window.location.href='http://localhost:5000/rules-management'">Rules Management UI</button>
+        <button id="openPrometheusButton">Open Prometheus</button>
+        <button id="rulesManagementButton">Rules Management UI</button>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('apiDocumentationLink').href = window.location.origin + '/redoc';
+            document.getElementById('openPrometheusButton').onclick = function() {
+                window.location.href = window.location.origin + '/graph';
+            };
+            document.getElementById('rulesManagementButton').onclick = function() {
+                window.location.href = window.location.origin + '/rules-management';
+            };
+        });
+    </script>
 </body>
 </html>

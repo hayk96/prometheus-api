@@ -1,4 +1,4 @@
-const PROMETHEUS_API_ADDR = 'http://localhost:5000';
+const PROMETHEUS_API_ADDR = window.location.origin;
 let filesData = [];
 let currentFilename = '';
 let codeMirrorInstance;
