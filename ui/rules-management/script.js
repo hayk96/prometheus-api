@@ -21,8 +21,8 @@ function fetchAndDisplayRules() {
             if (!json.data) {
                 throw new Error('No data found in the response');
             }
-            filesData = json.data.groups; 
-            displayRulesList(filesData); 
+            filesData = json.data.groups;
+            displayRulesList(filesData);
         })
         .catch(error => {
             console.error('Error fetching rules:', error);
@@ -34,39 +34,31 @@ function handleFileSelection(event) {
     const selectedGroup = filesData[selectedIndex];
     currentFilename = selectedGroup.file;
     const preprocessedData = preprocessDataForYaml(selectedGroup);
-
-    
     document.getElementById('editorContainer').style.display = 'block';
-
-    
     codeMirrorInstance.setValue(jsyaml.dump(preprocessedData));
-
-    
     setTimeout(function() {
         codeMirrorInstance.refresh();
-    }, 0); 
+    }, 0);
 }
 
 
 function openEditorWithNewFilename(filename) {
-    
     document.getElementById('editorContainer').style.display = 'block';
     codeMirrorInstance.setValue('');
-
-    
     setTimeout(function() {
         codeMirrorInstance.refresh();
     }, 0);
-
-    
     currentFilename = filename;
 }
 
-
-
+/**
+ * This function processes the data before it's sent
+ * to the YAML editor. The function filters rules
+ * based on their type and formats them accordingly.
+ */
 function preprocessDataForYaml(group) {
     let processedRules = group.rules.map(rule => {
-        
+
         let baseRule = {
             alert: rule.name,
             expr: rule.query,
@@ -75,12 +67,12 @@ function preprocessDataForYaml(group) {
         };
 
         if (rule.type === 'alerting') {
-            
+
             baseRule.for = convertDurationToHumanReadable(rule.duration);
         } else if (rule.type === 'recording') {
-            
+
             baseRule.record = baseRule.alert;
-            delete baseRule.alert;  
+            delete baseRule.alert;
         }
 
         return baseRule;
@@ -93,8 +85,10 @@ function preprocessDataForYaml(group) {
 }
 
 
-
-
+/**
+ * This function is used to convert durations
+ * from seconds into a more readable format.
+ */
 function convertDurationToHumanReadable(duration) {
     const second = 1;
     const minute = 60 * second;
@@ -139,13 +133,17 @@ async function saveRule() {
         if (!modifiedData) {
             throw new Error('The YAML is empty or not structured correctly.');
         }
-        const payload = JSON.stringify({ data: modifiedData });
+        const payload = JSON.stringify({
+            data: modifiedData
+        });
         const filename = currentFilename ? encodeURIComponent(currentFilename.split('/').pop()) : '';
         const url = `${PROMETHEUS_API_ADDR}/api/v1/rules/${filename}${currentFilename ? '?recreate=true' : ''}`;
 
         const response = await fetch(url, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: payload
         });
 
@@ -154,11 +152,11 @@ async function saveRule() {
             throw new Error(err.message || `HTTP error! status: ${response.status}`);
         }
 
-        await response.json(); 
+        await response.json();
 
         displayModal('Rule saved successfully.');
-        
-        fetchAndDisplayAllRules();  
+
+        fetchAndDisplayAllRules();
 
         document.getElementById('rulesList').style.display = 'block';
     } catch (error) {
@@ -195,7 +193,7 @@ function displayRulesList(groups) {
     const rulesListElement = document.getElementById('rulesList');
     rulesListElement.innerHTML = '';
 
-    
+
     const rulesByFilename = groups.reduce((acc, group) => {
         const filename = group.file.split('/').pop();
         if (!acc[filename]) {
@@ -203,11 +201,11 @@ function displayRulesList(groups) {
                 filename: filename,
                 types: [],
                 path: group.file,
-                groupIndex: groups.indexOf(group)  
+                groupIndex: groups.indexOf(group)
             };
         }
 
-        
+
         group.rules.forEach(rule => {
             if (!acc[filename].types.includes(rule.type)) {
                 acc[filename].types.push(rule.type);
@@ -216,8 +214,13 @@ function displayRulesList(groups) {
         return acc;
     }, {});
 
-    
-    Object.values(rulesByFilename).forEach(({ filename, types, path, groupIndex }) => {
+
+    Object.values(rulesByFilename).forEach(({
+        filename,
+        types,
+        path,
+        groupIndex
+    }) => {
         const ruleItem = document.createElement('div');
         ruleItem.className = 'rule-item';
 
@@ -228,7 +231,7 @@ function displayRulesList(groups) {
 
         types.forEach(type => {
             const typeLabel = document.createElement('span');
-            typeLabel.textContent = type.charAt(0).toUpperCase() + type.slice(1); 
+            typeLabel.textContent = type.charAt(0).toUpperCase() + type.slice(1);
             typeLabel.className = `rule-type ${type.toLowerCase()}`;
             ruleItem.appendChild(typeLabel);
         });
@@ -259,7 +262,12 @@ function displayRulesList(groups) {
     });
 }
 
-
+/**
+ * This function fetches specific rule data when
+ * a file is selected for editing. The function
+ * should ensure that all groups within the selected
+ * file are processed and displayed in the editor.
+ */
 function editRule(filePath) {
     currentFilename = filePath;
     fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
@@ -275,7 +283,11 @@ function editRule(filePath) {
                 .filter(group => group.file === currentFilename)
                 .map(preprocessDataForYaml);
 
-            let yamlContent = jsyaml.dump({ groups: groupsContent }, { indent: 2 });
+            let yamlContent = jsyaml.dump({
+                groups: groupsContent
+            }, {
+                indent: 2
+            });
 
             if (yamlContent) {
                 codeMirrorInstance.setValue(yamlContent);
@@ -298,7 +310,7 @@ function cancelEdit() {
         cancelBtn.classList.remove('gray-btn');
     }
     document.getElementById('editorContainer').style.display = 'none';
-    document.getElementById('rulesList').style.display = 'block';  
+    document.getElementById('rulesList').style.display = 'block';
     codeMirrorInstance.setValue('');
     currentFilename = '';
 }
@@ -307,8 +319,8 @@ function fetchRuleDetails(filePath) {
     fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(filePath)}`)
         .then(response => response.json())
         .then(data => {
-            
-            
+
+
         })
         .catch(error => {
             console.error('Error fetching rule details:', error);
@@ -328,7 +340,7 @@ function setupEditor() {
 }
 
 function setupEventListeners() {
-    
+
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', handleSearchInput);
@@ -336,18 +348,18 @@ function setupEventListeners() {
         console.error('Search input not found');
     }
 
-    
+
     const createRuleBtn = document.getElementById('createRuleBtn');
     if (createRuleBtn) {
-        createRuleBtn.addEventListener('click', openCreateRuleModal);  
+        createRuleBtn.addEventListener('click', openCreateRuleModal);
     } else {
         console.error('Create rule button not found');
     }
 
-    
+
     const submitNewRuleBtn = document.getElementById('submitNewRule');
     if (submitNewRuleBtn) {
-        submitNewRuleBtn.addEventListener('click', submitNewRule);  
+        submitNewRuleBtn.addEventListener('click', submitNewRule);
     } else {
         console.error('Submit new rule button not found');
     }
@@ -364,7 +376,7 @@ function setupEventListeners() {
     } else {
         console.error('Cancel Create Rule Button not found');
     }
-    
+
     document.getElementById('editAlertingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('alert'));
     document.getElementById('editRecordingRulesBtn')?.addEventListener('click', () => fetchAndDisplayRules('record'));
     document.getElementById('fileSelector')?.addEventListener('change', handleFileSelection);
@@ -379,8 +391,12 @@ function setupEventListeners() {
     });
 }
 
+/**
+ * This function fetches all rules and
+ * displays them using displayRulesList
+ */
 function fetchAndDisplayAllRules() {
-    
+
     fetchAndDisplayRules('alert');
     fetchAndDisplayRules('record');
 }
@@ -398,44 +414,44 @@ function removeRule(filePath) {
 
     function confirmDeletion() {
         fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules/${encodeURIComponent(filenameOnly)}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.ok && response.status === 204) {
-                
-                return null;
-            } else if (!response.ok) {
-                
-                return response.json().then(err => {
-                    throw new Error(err.message || `HTTP error! status: ${response.status}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data) {
-                
-                displayModal(data.message || 'Rule deleted successfully.');
-            } else {
-                
-                displayModal('Rule deleted successfully.');
-            }
-            
-            fetchAndDisplayRules();
-        })
-        .catch(error => {
-            displayModal(`Error deleting rule: ${error.message}`);
-            console.error('Error:', error);
-        })
-        .finally(() => {
-            
-            deleteModal.style.display = 'none';
-            confirmDeleteBtn.removeEventListener('click', confirmDeletion);
-            cancelDeleteBtn.removeEventListener('click', cancelDeletion);
-        });
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok && response.status === 204) {
+
+                    return null;
+                } else if (!response.ok) {
+
+                    return response.json().then(err => {
+                        throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+
+                    displayModal(data.message || 'Rule deleted successfully.');
+                } else {
+
+                    displayModal('Rule deleted successfully.');
+                }
+
+                fetchAndDisplayRules();
+            })
+            .catch(error => {
+                displayModal(`Error deleting rule: ${error.message}`);
+                console.error('Error:', error);
+            })
+            .finally(() => {
+
+                deleteModal.style.display = 'none';
+                confirmDeleteBtn.removeEventListener('click', confirmDeletion);
+                cancelDeleteBtn.removeEventListener('click', cancelDeletion);
+            });
     }
 
     function cancelDeletion() {
@@ -451,11 +467,11 @@ function removeRule(filePath) {
 
 function handleSearchInput(event) {
     const searchTerm = event.target.value.toLowerCase();
-    
+
     const filteredGroups = filesData.filter(group =>
         group.file.toLowerCase().includes(searchTerm)
     );
-    
+
     displayRulesList(filteredGroups);
 }
 
@@ -466,31 +482,35 @@ function applyChanges() {
         if (!modifiedData) {
             throw new Error('The YAML is empty or not structured correctly.');
         }
-        const payload = JSON.stringify({ data: modifiedData });
+        const payload = JSON.stringify({
+            data: modifiedData
+        });
         const filename = currentFilename ? encodeURIComponent(currentFilename.split('/').pop()) : '';
         const url = `${PROMETHEUS_API_ADDR}/api/v1/rules/${filename}${currentFilename ? '?recreate=true' : ''}`;
 
         fetch(url, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: payload
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => {
-                    throw new Error(err.message || `HTTP error! status: ${response.status}`);
-                });
-            }
-            return response.json();
-        })
-        .then(() => {
-            displayModal('Changes applied successfully.');
-            fetchAndDisplayRules();
-        })
-        .catch(error => {
-            displayModal(`Error applying changes: ${error.message}`);
-            console.error('Error:', error);
-        });
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: payload
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.message || `HTTP error! status: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                displayModal('Changes applied successfully.');
+                fetchAndDisplayRules();
+            })
+            .catch(error => {
+                displayModal(`Error applying changes: ${error.message}`);
+                console.error('Error:', error);
+            });
     } catch (error) {
         displayModal(`Error processing YAML: ${error.message}`);
         console.error('Error parsing YAML:', error);
@@ -506,9 +526,12 @@ function openCreateRuleModal() {
 
     cancelCreateRuleBtn
     document.getElementById('rulesList').style.display = 'none';
-    document.getElementById('editorContainer').style.display = 'block';  cancelCreateRuleBtn
-    codeMirrorInstance.setValue(''); cancelCreateRuleBtn
-    currentFilename = ''; cancelCreateRuleBtn
+    document.getElementById('editorContainer').style.display = 'block';
+    cancelCreateRuleBtn
+    codeMirrorInstance.setValue('');
+    cancelCreateRuleBtn
+    currentFilename = '';
+    cancelCreateRuleBtn
 
     setTimeout(function() {
         codeMirrorInstance.refresh();
@@ -523,18 +546,18 @@ function openCreateRuleModal() {
 
 function closeCreateRuleModal() {
     const modal = document.getElementById('createRuleModal');
-    modal.style.display = 'none'; 
+    modal.style.display = 'none';
 }
 
 function submitNewRule() {
     const newRuleNameInput = document.getElementById('newRuleName');
     const newRuleName = newRuleNameInput.value.trim();
-    const createRuleError = document.getElementById('createRuleError'); 
+    const createRuleError = document.getElementById('createRuleError');
 
-    
+
     createRuleError.textContent = '';
 
-    
+
     if (newRuleName === '') {
         createRuleError.textContent = 'Please enter a filename for the new rule.';
         return;
@@ -546,9 +569,9 @@ function submitNewRule() {
     }
 
     document.getElementById('createRuleModal').style.display = 'none';
-    currentFilename = newRuleName; 
+    currentFilename = newRuleName;
     document.getElementById('editorContainer').style.display = 'block';
-    codeMirrorInstance.setValue(''); 
-    codeMirrorInstance.focus(); 
+    codeMirrorInstance.setValue('');
+    codeMirrorInstance.focus();
     openEditorWithNewFilename(newRuleName);
 }
