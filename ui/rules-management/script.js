@@ -237,8 +237,6 @@ function displayRulesList(groups) {
         buttonsContainer.className = 'buttons-container';
 
         const editIcon = document.createElement('img');
-        editIcon.src = 'https://cdn-icons-png.flaticon.com/128/10336/10336582.png';
-        editIcon.alt = 'Edit';
         editIcon.className = 'edit-rule-icon';
 
         const editButton = document.createElement('button');
@@ -248,8 +246,6 @@ function displayRulesList(groups) {
         buttonsContainer.appendChild(editButton);
 
         const removeIcon = document.createElement('img');
-        removeIcon.src = 'https://cdn-icons-png.flaticon.com/128/9790/9790368.png';
-        removeIcon.alt = 'Remove';
         removeIcon.className = 'remove-rule-icon';
 
         const deleteButton = document.createElement('button');
