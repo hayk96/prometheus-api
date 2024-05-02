@@ -31,6 +31,7 @@
     <li><a href="#api-model">API model</a></li>
     <li><a href="#configuration">Configuration</a></li>
     <li><a href="#grafana-dashboard">Grafana dashboard</a></li>
+    <li><a href="#web-ui">Web UI</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#author-and-maintainer">Author and Maintainer</a></li>
     <li><a href="#licence">License</a></li>
@@ -152,6 +153,14 @@ required parameters:
 
 Grafana dashboard JSON model is available [here](https://github.com/hayk96/prometheus-api/tree/main/grafana/dashboard.json).
 ![](docs/images/dashboard.png)
+
+<!--Web UI -->
+## Web UI
+The web user interface is disabled by default. As the prometheus-api project is specifically designed to extend the APIs 
+available to Prometheus, the UI serves as an optional add-on feature. It offers a convenient and flexible way to manage 
+Prometheus rules. To enable the web UI, the `--web.enable-ui=true` flag must be passed at the startup of the application.
+
+![](docs/images/ui.png)
 
 <!-- ROADMAP -->
 ## Roadmap
