@@ -137,6 +137,8 @@ optional arguments:
                         rule files will be created with this suffix
   --log.level {debug,info,warning,error}
                         only log messages with the given severity or above. One of: [debug, info, warning, error]
+  --web.enable-ui {true,false}
+                        enable web management UI
 
 required parameters:
   --rule.path RULE.PATH
