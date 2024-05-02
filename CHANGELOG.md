@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.0 / 2024-05-02
+
+* [ENHANCEMENT] Added support of Web UI for better management of the Prometheus rules through UI. #14 
+* [CHANGE] Updated documentation
+
 ## 0.1.5 / 2024-02-25
 
 * [ENHANCEMENT] Added support for exposing Prometheus metrics. The corresponding metrics are available under the path 

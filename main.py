@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from src.utils.schemas import rule_schema_status
 from src.utils.arguments import arg_parser
 from src.api.v1.api import api_router
@@ -8,6 +9,7 @@ from src.utils import settings
 from fastapi import FastAPI
 import uvicorn
 import sys
+
 
 args = arg_parser()
 prom_addr, rule_path = args.get("prom.addr"), args.get("rule.path")
@@ -28,6 +30,14 @@ def custom_openapi_wrapper():
 app = FastAPI(swagger_ui_parameters={"defaultModelsExpandDepth": -1})
 app.openapi = custom_openapi_wrapper
 metrics(app)
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(api_router)
 
 

@@ -21,3 +21,4 @@ services:
     command:
       - --prom.addr=http://prometheus:9090
       - --rule.path=/app/rules
+      - --web.enable-ui=true

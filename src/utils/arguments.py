@@ -56,4 +56,13 @@ def arg_parser() -> dict:
         help="only log messages with the given severity or above. One of: [debug, info, warning, error]"
     )
 
+    parser.add_argument(
+        "--web.enable-ui",
+        required=False,
+        type=str,
+        default="false",
+        choices=["true", "false"],
+        help="enable web management UI"
+    )
+
     return parser.parse_args().__dict__
