@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 / 2024-05-07
+
+* [CHANGE] Serve remote JS script through Cloudflare CDN. No API changes.  #17
+
 ## 0.2.0 / 2024-05-02
 
 * [ENHANCEMENT] Added support of Web UI for better management of the Prometheus rules through UI. #14 
