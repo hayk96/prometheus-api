@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 / 2024-05-12
+
+* [REVERT] Reverted schema validation mechanism of rules API. Use local schema validation instead of remote which was introduces in [v0.1.2](https://github.com/hayk96/prometheus-api/releases/tag/v0.1.2). #18
+
 ## 0.2.1 / 2024-05-07
 
 * [CHANGE] Serve remote JS script through Cloudflare CDN. No API changes.  #17
