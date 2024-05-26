@@ -1,13 +1,5 @@
 # Changelog
 
-## 0.3.0 / 2024-05-26
-
-* [ENHANCEMENT] 
-Introduced a new API `/metrics-lifecycle-policies` for managing metrics lifecycle in the Prometheus ecosystem. This 
-flexible API allows users to define policies that specify which time-series should be retained and for how long in the 
-Prometheus TSDB storage.
-* [BUGFIX] fixed description of 404 status code of the `DELETE /api/v1/rules` API in Redocli page.
-
 ## 0.2.2 / 2024-05-12
 
 * [REVERT] Reverted schema validation mechanism of rules API. Use local schema validation instead of remote which was introduces in [v0.1.2](https://github.com/hayk96/prometheus-api/releases/tag/v0.1.2). #18
