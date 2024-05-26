@@ -17,6 +17,7 @@ server:
           readOnly: false
   extraFlags:
     - web.enable-lifecycle
+    - web.enable-admin-api
     - web.listen-address=:9091
   extraVolumeMounts:
     - name: storage-volume
