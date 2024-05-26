@@ -62,16 +62,3 @@ def check_fs_permissions(prometheus_rules_dir) -> bool:
         logger.debug(
             "The application has the necessary permissions to access the rule files directory.")
         return True
-
-
-def prom_info(prometheus_address, sub_path) -> dict:
-    """
-    Returns various runtime, and configuration information properties
-    about the Prometheus server based on the sub_path parameter
-    """
-    try:
-        r = requests.get(f"{prometheus_address}/api/v1/status{sub_path}")
-    except requests.exceptions.ConnectionError as e:
-        logger.error(e)
-        return {}
-    return r.json()
