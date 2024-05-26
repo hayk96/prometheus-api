@@ -11,6 +11,7 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.enable-lifecycle
+      - --web.enable-admin-api
   prometheus-api:
     image: hayk96/prometheus-api:latest
     container_name: prometheus-api

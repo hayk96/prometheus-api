@@ -230,7 +230,7 @@ async def update(
                        "description": "No Content",
                    },
                    404: {
-                       "description": "Conflict",
+                       "description": "Not Found",
                        "content": {
                            "application/json": {
                                "example": [
