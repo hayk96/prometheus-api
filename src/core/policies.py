@@ -78,7 +78,7 @@ def load_policies() -> dict:
         with open(f"{rule_path}/{policies_data_file}", "r") as f:
             policies = json.loads(f.read())
     except FileNotFoundError:
-        logger.debug(f"No metrics lifecycle policies configured yet")
+        logger.debug("No metrics lifecycle policies configured yet")
     except BaseException as e:
         logger.error(f"Failed to load metrics lifecycle policies. {e}")
     finally:

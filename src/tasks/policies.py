@@ -57,7 +57,7 @@ def task_run_policies():
             f"Starting job to cleanup time-series.")
         for p in policies:
             logger.debug(
-                f"Task cleanup time-series is in progress", extra={
+                "Task cleanup time-series is in progress", extra={
                     "policy_name": p, "match": policies[p]["match"],
                     "keep_for": policies[p]["keep_for"]})
             delete_series(policy_name=p, policy=policies[p])
