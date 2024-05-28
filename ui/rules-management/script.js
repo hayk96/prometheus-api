@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
    setupEditor();
    setupEventListeners();
    fetchAndDisplayAllRules();
+   initializeTheme();
 });
 
 function fetchAndDisplayRules() {
@@ -557,4 +558,29 @@ function submitNewRule() {
    codeMirrorInstance.setValue('');
    codeMirrorInstance.focus();
    openEditorWithNewFilename(newRuleName);
+}
+
+/**
+ * This function is responsible for initializing
+ * and managing the theme switching functionality
+ * of a Rules Management page.
+ */
+function initializeTheme() {
+    const themeSwitcher = document.getElementById('themeSwitcher');
+    const themeIcon = document.getElementById('themeIcon');
+    const lightIcon = themeSwitcher.getAttribute('data-to-dark-icon');
+    const darkIcon = themeSwitcher.getAttribute('data-to-light-icon');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeIcon.src = darkIcon;
+    }
+
+    themeSwitcher.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        themeIcon.src = isDarkMode ? darkIcon : lightIcon;
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    });
 }
