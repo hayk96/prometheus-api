@@ -643,3 +643,36 @@ body.dark-mode .create-btn {
 body.dark-mode .create-btn:hover {
     background-color: #45A049;
 }
+
+.filter-checkboxes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.filter-checkboxes label {
+    font-size: 14px;
+    color: #333;
+}
+
+body.dark-mode .filter-checkboxes label {
+    color: #E0E0E0;
+}
+
+.filter-checkboxes input[type="checkbox"]#filterAlerting:checked {
+    accent-color: #f56565;
+}
+
+.filter-checkboxes input[type="checkbox"]#filterRecording:checked {
+    accent-color: #3182ce;
+}
+
+.filter-checkboxes input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.filter-checkboxes label {
+    font-size: 14px;
+    color: #333;
+}

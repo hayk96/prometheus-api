@@ -345,6 +345,13 @@ function setupEventListeners() {
       console.error('Search input not found');
    }
 
+   if (filterAlerting && filterRecording) {
+      filterAlerting.addEventListener('change', filterRulesByType);
+      filterRecording.addEventListener('change', filterRulesByType);
+   } else {
+      console.error('Filter checkboxes not found');
+   }
+
    const createRuleBtn = document.getElementById('createRuleBtn');
    if (createRuleBtn) {
       createRuleBtn.addEventListener('click', openCreateRuleModal);
@@ -456,6 +463,25 @@ function removeRule(filePath) {
    cancelDeleteBtn.addEventListener('click', cancelDeletion);
 }
 
+/**
+ * This function filters a list of rule groups based
+ * on the types of rules (Alerting or Recording)
+ * selected by the user through checkboxes.
+ */
+function filterRulesByType() {
+    const filterAlerting = document.getElementById('filterAlerting').checked;
+    const filterRecording = document.getElementById('filterRecording').checked;
+
+    const filteredGroups = filesData.filter(group => {
+        return group.rules.some(rule => {
+            if (filterAlerting && rule.type === 'alerting') return true;
+            return filterRecording && rule.type === 'recording';
+
+        });
+    });
+
+    displayRulesList(filteredGroups);
+}
 
 function handleSearchInput(event) {
    const searchTerm = event.target.value.toLowerCase();
