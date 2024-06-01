@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
    setupEditor();
    setupEventListeners();
    fetchAndDisplayAllRules();
+   initializeTheme();
 });
 
 function fetchAndDisplayRules() {
@@ -267,6 +268,8 @@ function displayRulesList(groups) {
  */
 function editRule(filePath) {
    currentFilename = filePath;
+   const filenameOnly = currentFilename.split('/').pop();
+   document.getElementById('currentFilename').textContent = `Editing: ${filenameOnly}`;
    fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
       .then(response => response.json())
       .then(data => {
@@ -310,6 +313,7 @@ function cancelEdit() {
    document.getElementById('rulesList').style.display = 'block';
    codeMirrorInstance.setValue('');
    currentFilename = '';
+   document.getElementById('currentFilename').textContent = '';
 }
 
 function fetchRuleDetails(filePath) {
@@ -342,6 +346,13 @@ function setupEventListeners() {
       searchInput.addEventListener('input', handleSearchInput);
    } else {
       console.error('Search input not found');
+   }
+
+   if (filterAlerting && filterRecording) {
+      filterAlerting.addEventListener('change', filterRulesByType);
+      filterRecording.addEventListener('change', filterRulesByType);
+   } else {
+      console.error('Filter checkboxes not found');
    }
 
    const createRuleBtn = document.getElementById('createRuleBtn');
@@ -455,6 +466,25 @@ function removeRule(filePath) {
    cancelDeleteBtn.addEventListener('click', cancelDeletion);
 }
 
+/**
+ * This function filters a list of rule groups based
+ * on the types of rules (Alerting or Recording)
+ * selected by the user through checkboxes.
+ */
+function filterRulesByType() {
+    const filterAlerting = document.getElementById('filterAlerting').checked;
+    const filterRecording = document.getElementById('filterRecording').checked;
+
+    const filteredGroups = filesData.filter(group => {
+        return group.rules.some(rule => {
+            if (filterAlerting && rule.type === 'alerting') return true;
+            return filterRecording && rule.type === 'recording';
+
+        });
+    });
+
+    displayRulesList(filteredGroups);
+}
 
 function handleSearchInput(event) {
    const searchTerm = event.target.value.toLowerCase();
@@ -557,4 +587,29 @@ function submitNewRule() {
    codeMirrorInstance.setValue('');
    codeMirrorInstance.focus();
    openEditorWithNewFilename(newRuleName);
+}
+
+/**
+ * This function is responsible for initializing
+ * and managing the theme switching functionality
+ * of a Rules Management page.
+ */
+function initializeTheme() {
+    const themeSwitcher = document.getElementById('themeSwitcher');
+    const themeIcon = document.getElementById('themeIcon');
+    const lightIcon = themeSwitcher.getAttribute('data-to-dark-icon');
+    const darkIcon = themeSwitcher.getAttribute('data-to-light-icon');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeIcon.src = darkIcon;
+    }
+
+    themeSwitcher.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        themeIcon.src = isDarkMode ? darkIcon : lightIcon;
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    });
 }
