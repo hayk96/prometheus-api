@@ -268,6 +268,8 @@ function displayRulesList(groups) {
  */
 function editRule(filePath) {
    currentFilename = filePath;
+   const filenameOnly = currentFilename.split('/').pop();
+   document.getElementById('currentFilename').textContent = `Editing: ${filenameOnly}`;
    fetch(`${PROMETHEUS_API_ADDR}/api/v1/rules?file[]=${encodeURIComponent(currentFilename)}`)
       .then(response => response.json())
       .then(data => {
@@ -311,6 +313,7 @@ function cancelEdit() {
    document.getElementById('rulesList').style.display = 'block';
    codeMirrorInstance.setValue('');
    currentFilename = '';
+   document.getElementById('currentFilename').textContent = '';
 }
 
 function fetchRuleDetails(filePath) {

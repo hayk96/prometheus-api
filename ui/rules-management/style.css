@@ -676,3 +676,14 @@ body.dark-mode .filter-checkboxes label {
     font-size: 14px;
     color: #333;
 }
+
+.current-filename {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+body.dark-mode .current-filename {
+    color: #E0E0E0;
+}
