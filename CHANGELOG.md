@@ -1,12 +1,5 @@
 # Changelog
 
-## 0.3.1 / 2024-06-01
-
-* [ENHANCEMENT] Added a new webpage, Metrics Management, based on the `/metrics-lifecycle-policies` API. This feature allows 
-for directly defining and managing policies for retaining Prometheus metrics. #23
-* [ENHANCEMENT] Added support for dark mode on the Rules Management page. #16
-* [ENHANCEMENT] Added support of filtering of rules by their type from the UI. #15
-
 ## 0.3.0 / 2024-05-26
 
 * [ENHANCEMENT] 
