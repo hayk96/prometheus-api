@@ -9,6 +9,7 @@ router = APIRouter()
 
 if arg_parser().get("web.enable_ui") == "true":
     rules_management = "ui/rules-management"
+    metrics_management = "ui/metrics-management"
     logger.info("Starting web management UI")
 
     @router.get("/", response_class=HTMLResponse,
@@ -30,6 +31,28 @@ if arg_parser().get("web.enable_ui") == "true":
     async def rules_management_files(path, request: Request):
         if path in ["script.js", "style.css"]:
             return FileResponse(f"{rules_management}/{path}")
+        sts, msg = "404", "Not Found"
+        logger.info(
+            msg=msg,
+            extra={
+                "status": sts,
+                "method": request.method,
+                "request_path": request.url.path})
+        return f"{sts} {msg}"
+
+    @router.get("/metrics-management",
+                description="RRenders metrics management HTML page of this application",
+                include_in_schema=False)
+    async def metrics_management_page():
+        return FileResponse(f"{metrics_management}/index.html")
+
+    @router.get(
+        "/metrics-management/{path}",
+        description="Returns JavaScript and CSS files of the metrics management page",
+        include_in_schema=False)
+    async def metrics_management_files(path, request: Request):
+        if path in ["script.js", "style.css"]:
+            return FileResponse(f"{metrics_management}/{path}")
         sts, msg = "404", "Not Found"
         logger.info(
             msg=msg,
