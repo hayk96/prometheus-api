@@ -168,7 +168,6 @@
         <h1>The easiest Prometheus management interface</h1>
         <button id="openPrometheusButton">Open Prometheus</button>
         <button id="rulesManagementButton">Rules Management</button>
-        <button id="metricsManagementButton">Metrics Management</button>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -178,9 +177,6 @@
             };
             document.getElementById('rulesManagementButton').onclick = function() {
                 window.location.href = window.location.origin + '/rules-management';
-            };
-            document.getElementById('metricsManagementButton').onclick = function() {
-                window.location.href = window.location.origin + '/metrics-management';
             };
         });
     </script>
