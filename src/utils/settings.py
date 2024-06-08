@@ -1,9 +1,10 @@
 from os import remove, path
 from .log import logger
+from time import sleep
 import requests
 
 
-def check_prom_http_connection(prometheus_address) -> bool:
+def check_prom_readiness(prometheus_address) -> bool:
     """Checks the connection to the Prometheus server over HTTP."""
     try:
         r = requests.get(f"{prometheus_address}/-/ready")
@@ -20,15 +21,35 @@ def check_prom_http_connection(prometheus_address) -> bool:
             return False
 
 
+def establish_prom_connection(prometheus_address, retries=600) -> bool:
+    """
+    This function continuously checks the
+    connection to the Prometheus server, waiting
+    for it to establish. The total wait time is
+    30 minutes (600 checks at 3-second intervals)
+    """
+    for i in range(retries):
+        if check_prom_readiness(prometheus_address):
+            return True
+        sleep(3)
+    logger.error(
+        "Connection to Prometheus failed: Maximum retry attempts exceeded. The server has been shut down.")
+    return False
+
+
 def check_reload_api_status(prometheus_address) -> bool:
     """Checks the status of the Prometheus Management API."""
-    r = requests.post(f"{prometheus_address}/-/reload")
-    if r.status_code == 403:
-        logger.error(
-            f"{r.text} It's disabled by default and can be enabled via the --web.enable-lifecycle. "
-            f"See https://prometheus.io/docs/prometheus/latest/management_api/#reload for more details.")
-        return False
-    return True
+    try:
+        r = requests.post(f"{prometheus_address}/-/reload")
+    except requests.exceptions.ConnectionError as e:
+        logger.error(e)
+    else:
+        if r.status_code == 403:
+            logger.error(
+                f"{r.text} It's disabled by default and can be enabled via the --web.enable-lifecycle. "
+                f"See https://prometheus.io/docs/prometheus/latest/management_api/#reload for more details.")
+            return False
+        return True
 
 
 def check_rules_directory(prometheus_rules_dir) -> bool:

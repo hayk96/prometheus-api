@@ -8,8 +8,6 @@ import json
 rule_path = arg_parser().get("rule.path")
 prom_addr = arg_parser().get("prom.addr")
 policies_data_file = ".policies.json"
-prom_storage_retention_human = prom_info(
-    prom_addr, "/runtimeinfo")["data"]["storageRetention"]
 
 
 def sync_to_file(data) -> None:
@@ -105,6 +103,8 @@ def validate_duration(val) -> tuple[bool, int, str, str, int]:
     This function compares the value of the 'keep_for'
     field with the retention time of the Prometheus server
     """
+    prom_storage_retention_human = prom_info(
+        prom_addr, "/runtimeinfo")["data"]["storageRetention"]
     prom_storage_retention_seconds = parse(prom_storage_retention_human)
     val_seconds = parse(val)
     if val_seconds >= prom_storage_retention_seconds:

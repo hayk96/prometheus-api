@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2 / 2024-06-08
+
+* [ENHANCEMENT] Added a new endpoint: `/health` for retrieving system health. #28
+* [ENHANCEMENT] Added a new function that continuously checks (600 checks at 3-second intervals) for establishing a connection to Prometheus.
+* [BUGFIX] The Prometheus /runtimeinfo API call check has been moved under the validation function.
+* [BUGFIX] Added proper exception handling while checking the status of the reload API of Prometheus at runtime.
+
 ## 0.3.1 / 2024-06-01
 
 * [ENHANCEMENT] Added a new webpage, Metrics Management, based on the `/metrics-lifecycle-policies` API. This feature allows 
