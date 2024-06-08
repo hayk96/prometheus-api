@@ -1,7 +1,10 @@
 from src.models.policy import MetricsLifecyclePolicyCreate, MetricsLifecyclePolicyUpdate
 from fastapi import APIRouter, Response, Request, Body, status
+from apscheduler.triggers.date import DateTrigger
+from src.utils.scheduler import schedule
 from src.core import policies as mlp
 from src.utils.log import logger
+from datetime import datetime
 from typing import Annotated
 
 router = APIRouter()
@@ -109,8 +112,8 @@ async def get_policies(
 
 
 @router.post("/metrics-lifecycle-policies",
-             name="Create metric lifecycle policy",
-             description="Creates a new metric lifecycle policy",
+             name="Create metrics lifecycle policy",
+             description="Creates a new metrics lifecycle policy",
              status_code=status.HTTP_201_CREATED,
              tags=["metrics-lifecycle-policies"],
              responses={
@@ -354,3 +357,57 @@ async def delete(
     return {
         "status": sts,
         "message": msg} if response.status_code != 204 else response.status_code
+
+
+@router.post("/metrics-lifecycle-policies/trigger",
+             name="Trigger metrics lifecycle policies",
+             description="Force triggers all new metrics lifecycle policies",
+             status_code=status.HTTP_202_ACCEPTED,
+             tags=["metrics-lifecycle-policies"],
+             responses={
+                  202: {
+                      "description": "Accepted",
+                      "content": {
+                          "application/json": {
+                              "example": [
+                                  {
+                                      "status": "success",
+                                      "message": "Your request has been accepted for processing"
+                                  }
+                              ]
+                          }
+                      }
+                  },
+                 409: {
+                     "description": "Conflict",
+                     "content": {
+                         "application/json": {
+                             "example": [
+                                 {
+                                     "status": "error",
+                                     "message": "Cannot create a new task. Server is currently processing another task"
+                                 }
+                             ]
+                         }
+                     }
+                  },
+             }
+             )
+async def trigger(request: Request, response: Response):
+    from src.tasks.policies import running_tasks
+    if not running_tasks:
+        schedule(trigger=DateTrigger(run_date=datetime.now()))
+        response.status_code, sts, msg = 202, "success", "Request has been accepted for processing"
+    else:
+        response.status_code, sts, msg = 409, "error", \
+            "Cannot create a new task. Server is currently processing another task"
+    logger.info(
+        msg=msg,
+        extra={
+            "status": response.status_code,
+            "method": request.method,
+            "request_path": request.url.path})
+    return {
+        "status": sts,
+        "message": msg
+    }
