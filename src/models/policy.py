@@ -12,7 +12,7 @@ class MetricsLifecyclePolicyCreate(BaseModel, extra=Extra.allow):
             "description": "Time-series matching with regex will be kept for 7 days",
             "value": {
                 "name": "Example Policy",
-                "match": "{__name__=~'go_.+'}",
+                "match": "{__name__=~'go_.*'}",
                 "keep_for": "7d",
                 "description": "Time-series matching with regex will be kept for 7 days."
             }

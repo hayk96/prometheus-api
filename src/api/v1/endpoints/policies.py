@@ -23,7 +23,7 @@ policies = mlp.load_policies()
                         "application/json": {
                             "example": [
                                 {
-                                    "match": "{__name__=~'go_.+'}",
+                                    "match": "{__name__=~'go_.*'}",
                                     "keep_for": "7d",
                                     "description": "This metrics lifecycle policy keeps GoLang metrics for 7 days"
                                 }
@@ -81,7 +81,7 @@ async def get_policy(
                             "example": [
                                 {
                                     "GoLang Policy": {
-                                        "match": "{__name__=~'go_.+'}",
+                                        "match": "{__name__=~'go_.*'}",
                                         "keep_for": "7d",
                                         "message": "This policy keeps GoLang metrics for 7 days"
                                     },
