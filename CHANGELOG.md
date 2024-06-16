@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3 / 2024-06-16
+
+* [ENHANCEMENT] Added a new endpoint: `/metrics-lifecycle-policies/trigger` for force-triggering all Metrics Lifecycle Policies. #29
+* [CHANGE] Changed the execution interval of the task "Clean-up Prometheus series" by the scheduler to 2 hours (previously 20 minutes).
+* [BUGFIX] Prevented the execution of more than one task at the same time, as tasks can remain in the running state for longer than their execution interval.
+
 ## 0.3.2 / 2024-06-08
 
 * [ENHANCEMENT] Added a new endpoint: `/health` for retrieving system health. #28

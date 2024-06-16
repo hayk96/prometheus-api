@@ -1,5 +1,6 @@
 FROM python:3.10-alpine
 LABEL maintainer="Hayk Davtyan <hayko5999@gmail.com>"
+ENV TZ UTC
 WORKDIR app
 COPY . .
 RUN python -m pip install --no-cache-dir -r requirements.txt
