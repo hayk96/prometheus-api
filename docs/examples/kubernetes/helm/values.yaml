@@ -9,12 +9,33 @@ server:
         - --rule.path=/rules
         - --web.enable-ui=true
        ports:
-         - containerPort: 9090
+         - name: http
+           containerPort: 9090
        volumeMounts:
         - name: storage-volume
           mountPath: /rules
           subPath: rules
           readOnly: false
+       startupProbe:
+         httpGet:
+           path: /health
+           port: http
+           scheme: HTTP
+         initialDelaySeconds: 30
+         timeoutSeconds: 1
+         periodSeconds: 5
+         successThreshold: 1
+         failureThreshold: 1
+       livenessProbe:
+         httpGet:
+           path: /health
+           port: http
+           scheme: HTTP
+         initialDelaySeconds: 30
+         timeoutSeconds: 1
+         periodSeconds: 60
+         successThreshold: 1
+         failureThreshold: 2
   extraFlags:
     - web.enable-lifecycle
     - web.enable-admin-api
