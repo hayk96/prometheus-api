@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "expr": {
+      "type": "string"
+    },
+    "start": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "end": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "step": {
+      "type": ["string", "null"],
+      "pattern": "^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
+    }
+  },
+  "required": ["expr"],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "start": { "type": "string" },
+        "end": { "type": "string" },
+        "step": { "type": "string" }
+      },
+      "required": ["start", "end", "step"]
+    },
+    {
+      "properties": {
+        "start": { "type": "null" },
+        "end": { "type": "null" },
+        "step": { "type": "null" }
+      }
+    }
+  ],
+  "title": "Export data from Prometheus"
+}
