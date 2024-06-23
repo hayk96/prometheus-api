@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 / 2024-06-23
+
+* [ENHANCEMENT] Added a new API endpoint: `/export` for exporting data from Prometheus as a CSV file. This feature allows users to export data from Prometheus easily. 
+It supports both instant queries and range queries. More details can be found in the [API documentation](https://hayk96.github.io/prometheus-api/). #33
+
 ## 0.3.3 / 2024-06-16
 
 * [ENHANCEMENT] Added a new endpoint: `/metrics-lifecycle-policies/trigger` for force-triggering all Metrics Lifecycle Policies. #29
