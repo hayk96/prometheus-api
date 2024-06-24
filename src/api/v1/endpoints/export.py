@@ -67,9 +67,9 @@ async def export(
         ]
 ):
     data = data.dict()
-    filename = "data.csv"
     expr, start = data.get("expr"), data.get("start")
     end, step = data.get("end"), data.get("step")
+    file = None
     validation_status, response.status_code, sts, msg = exp.validate_request(
         "export.json", data)
     if validation_status:
@@ -80,8 +80,8 @@ async def export(
             end=end, step=step)
         if resp_status:
             labels, data_processed = exp.data_processor(source_data=resp_data)
-            csv_generator_status, sts, msg = exp.csv_generator(
-                data=data_processed, fields=labels, filename=filename)
+            csv_generator_status, sts, file, msg = exp.csv_generator(
+                data=data_processed, fields=labels)
         else:
             sts, msg = resp_data.get("status"), resp_data.get("error")
 
@@ -93,6 +93,6 @@ async def export(
             "method": request.method,
             "request_path": request.url.path})
     if sts == "success":
-        return FileResponse(path=filename,
-                            background=BackgroundTask(exp.cleanup_files, filename))
+        return FileResponse(path=file,
+                            background=BackgroundTask(exp.cleanup_files, file))
     return {"status": sts, "query": expr, "message": msg}
