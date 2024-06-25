@@ -1,5 +1,6 @@
 from jsonschema import validate, exceptions
 from src.utils.arguments import arg_parser
+from uuid import uuid4
 import requests
 import json
 import copy
@@ -102,18 +103,19 @@ def cleanup_files(file) -> tuple[True, str]:
         return True, "File has been removed successfully"
 
 
-def csv_generator(data, fields, filename) -> tuple[bool, str, str]:
+def csv_generator(data, fields) -> tuple[bool, str, str, str]:
     """
     This function generates a CSV file
     based on the provided objects.
     """
+    file_path = f"/tmp/{str(uuid4())}.csv"
     try:
-        with open(filename, 'w') as csvfile:
+        with open(file_path, 'w') as csvfile:
             writer = csv.DictWriter(
                 csvfile, fieldnames=fields, extrasaction='ignore')
             writer.writeheader()
             writer.writerows(data)
     except BaseException as e:
-        return False, "error", str(e)
+        return False, "error", "", str(e)
     else:
-        return True, "success", "CSV file has been generated successfully"
+        return True, "success", file_path, "CSV file has been generated successfully"
