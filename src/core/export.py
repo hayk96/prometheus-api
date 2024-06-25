@@ -3,6 +3,7 @@ from src.utils.arguments import arg_parser
 from uuid import uuid4
 import requests
 import json
+import yaml
 import copy
 import csv
 import os
@@ -103,19 +104,31 @@ def cleanup_files(file) -> tuple[True, str]:
         return True, "File has been removed successfully"
 
 
-def csv_generator(data, fields) -> tuple[bool, str, str, str]:
+def file_generator(file_format, data, fields):
     """
-    This function generates a CSV file
-    based on the provided objects.
+    This function generates a file depending
+    on the provided file format/extension
     """
-    file_path = f"/tmp/{str(uuid4())}.csv"
+
+    file_path = f"/tmp/{str(uuid4())}.{file_format}"
     try:
-        with open(file_path, 'w') as csvfile:
-            writer = csv.DictWriter(
-                csvfile, fieldnames=fields, extrasaction='ignore')
-            writer.writeheader()
-            writer.writerows(data)
+        with open(file_path, 'w') as f:
+            if file_format == "csv":
+                writer = csv.DictWriter(
+                    f, fieldnames=fields, extrasaction='ignore')
+                writer.writeheader()
+                writer.writerows(data)
+            elif file_format in ["yml", "yaml"]:
+                f.write(yaml.dump(data))
+            elif file_format == "json":
+                f.write(json.dumps(data))
+            elif file_format in ["ndjson", "jsonlines"]:
+                for i in data:
+                    f.write(f"{json.dumps(i)}\n")
+            else:
+                cleanup_files(file_path)
+                return False, "error", 400, "", f"Unsupported file format '{file_format}'"
     except BaseException as e:
-        return False, "error", "", str(e)
+        return False, "error", 500, "", str(e)
     else:
-        return True, "success", file_path, "CSV file has been generated successfully"
+        return True, "success", 200, file_path, f"{file_format.upper()} file has been generated successfully"
