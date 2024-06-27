@@ -64,12 +64,13 @@ async def export(
             Body(
                 openapi_examples=ExportData._request_body_examples,
             )
-        ]
+        ],
+        format: str = "csv"
 ):
     data = data.dict()
     expr, start = data.get("expr"), data.get("start")
     end, step = data.get("end"), data.get("step")
-    file = None
+    file, file_format = None, format.lower()
     validation_status, response.status_code, sts, msg = exp.validate_request(
         "export.json", data)
     if validation_status:
@@ -80,8 +81,8 @@ async def export(
             end=end, step=step)
         if resp_status:
             labels, data_processed = exp.data_processor(source_data=resp_data)
-            csv_generator_status, sts, file, msg = exp.csv_generator(
-                data=data_processed, fields=labels)
+            file_generator_status, sts, response.status_code, file, msg = exp.file_generator(
+                file_format=file_format, data=data_processed, fields=labels)
         else:
             sts, msg = resp_data.get("status"), resp_data.get("error")
 
@@ -91,7 +92,7 @@ async def export(
             "status": response.status_code,
             "query": expr,
             "method": request.method,
-            "request_path": request.url.path})
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
     if sts == "success":
         return FileResponse(path=file,
                             background=BackgroundTask(exp.cleanup_files, file))
