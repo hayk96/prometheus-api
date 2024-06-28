@@ -71,7 +71,8 @@ async def export(
     expr, start = data.get("expr"), data.get("start")
     end, step = data.get("end"), data.get("step")
     file, file_format = None, format.lower()
-    custom_fields = data.get("replace_fields")
+    custom_fields, timestamp_format = data.get(
+        "replace_fields"), data.get("timestamp_format")
     validation_status, response.status_code, sts, msg = exp.validate_request(
         "export.json", data)
     if validation_status:
@@ -82,7 +83,7 @@ async def export(
             end=end, step=step)
         if resp_status:
             labels, data_processed = exp.data_processor(
-                source_data=resp_data, custom_fields=custom_fields)
+                source_data=resp_data, custom_fields=custom_fields, timestamp_format=timestamp_format)
             file_generator_status, sts, response.status_code, file, msg = exp.file_generator(
                 file_format=file_format, data=data_processed, fields=labels)
         else:
