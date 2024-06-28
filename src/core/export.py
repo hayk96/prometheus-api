@@ -33,7 +33,24 @@ def prom_query(query, range_query=False, start="0", end="0",
         return True if r.status_code == 200 else False, r.status_code, r.json()
 
 
-def data_processor(source_data: dict) -> tuple[list, list]:
+def replace_fields(data, custom_fields) -> None:
+    """
+    This function replaces (renames) the
+    final Prometheus labels (fields) based
+    on the 'replace_fields' object.
+    """
+    for source_field, target_field in custom_fields.items():
+        try:
+            if isinstance(data, list):
+                data[data.index(source_field)] = target_field
+            elif isinstance(data, dict):
+                data[target_field] = data.pop(source_field)
+        except KeyError:
+            pass
+
+
+def data_processor(source_data: dict,
+                   custom_fields: dict) -> tuple[list, list]:
     """
     This function preprocesses the results
     of the Prometheus query for future formatting.
@@ -51,6 +68,7 @@ def data_processor(source_data: dict) -> tuple[list, list]:
             series = ts["metric"]
             series["timestamp"] = ts["value"][0]
             series["value"] = ts["value"][1]
+            replace_fields(series, custom_fields)
             data_processed.append(series)
 
     def matrix_processor():
@@ -62,6 +80,7 @@ def data_processor(source_data: dict) -> tuple[list, list]:
                 series_nested = copy.deepcopy(series)
                 series_nested["timestamp"] = ts["values"][idx][0]
                 series_nested["value"] = ts["values"][idx][1]
+                replace_fields(series_nested, custom_fields)
                 data_processed.append(series_nested)
                 del series_nested
 
@@ -72,6 +91,7 @@ def data_processor(source_data: dict) -> tuple[list, list]:
 
     unique_labels = sorted(unique_labels)
     unique_labels.extend(["timestamp", "value"])
+    replace_fields(unique_labels, custom_fields)
     return unique_labels, data_processed
 
 
