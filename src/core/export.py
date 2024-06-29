@@ -1,5 +1,7 @@
 from jsonschema import validate, exceptions
 from src.utils.arguments import arg_parser
+from email.utils import formatdate
+from datetime import datetime
 from uuid import uuid4
 import requests
 import json
@@ -49,8 +51,25 @@ def replace_fields(data, custom_fields) -> None:
             pass
 
 
+def format_timestamp(timestamp, fmt) -> str:
+    """
+    This function converts Unix timestamps
+    to several common time formats.
+    """
+    timestamp_formats = {
+        "unix": timestamp,
+        "rfc2822": formatdate(timestamp, localtime=True),
+        "iso8601": datetime.fromtimestamp(timestamp).isoformat(),
+        "rfc3339": datetime.fromtimestamp(timestamp).astimezone().isoformat(timespec='milliseconds'),
+        "friendly": datetime.fromtimestamp(timestamp).strftime('%A, %B %d, %Y %I:%M:%S %p')
+    }
+
+    return timestamp_formats[fmt]
+
+
 def data_processor(source_data: dict,
-                   custom_fields: dict) -> tuple[list, list]:
+                   custom_fields: dict,
+                   timestamp_format: str) -> tuple[list, list]:
     """
     This function preprocesses the results
     of the Prometheus query for future formatting.
@@ -66,7 +85,8 @@ def data_processor(source_data: dict,
             ts_labels = set(ts["metric"].keys())
             unique_labels.update(ts_labels)
             series = ts["metric"]
-            series["timestamp"] = ts["value"][0]
+            series["timestamp"] = format_timestamp(
+                ts["value"][0], timestamp_format)
             series["value"] = ts["value"][1]
             replace_fields(series, custom_fields)
             data_processed.append(series)
@@ -78,7 +98,8 @@ def data_processor(source_data: dict,
             series = ts["metric"]
             for idx in range(len(ts["values"])):
                 series_nested = copy.deepcopy(series)
-                series_nested["timestamp"] = ts["values"][idx][0]
+                series_nested["timestamp"] = format_timestamp(
+                    ts["values"][idx][0], timestamp_format)
                 series_nested["value"] = ts["values"][idx][1]
                 replace_fields(series_nested, custom_fields)
                 data_processed.append(series_nested)
