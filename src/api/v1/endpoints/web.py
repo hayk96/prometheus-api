@@ -66,14 +66,14 @@ if arg_parser().get("web.enable_ui") == "true":
     @router.get("/reports",
                 description="Renders Reports HTML page of this application",
                 include_in_schema=False)
-    async def metrics_management_page():
+    async def reports_page():
         return FileResponse(f"{reports}/index.html")
 
     @router.get(
         "/reports/{path}",
         description="Returns JavaScript and CSS files of the Reports",
         include_in_schema=False)
-    async def metrics_management_files(path, request: Request):
+    async def reports_files(path, request: Request):
         if path in ["script.js", "style.css"]:
             return FileResponse(f"{reports}/{path}")
         sts, msg = "404", "Not Found"
