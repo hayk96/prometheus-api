@@ -64,12 +64,15 @@ async def export(
             Body(
                 openapi_examples=ExportData._request_body_examples,
             )
-        ]
+        ],
+        format: str = "csv"
 ):
     data = data.dict()
-    filename = "data.csv"
     expr, start = data.get("expr"), data.get("start")
     end, step = data.get("end"), data.get("step")
+    file, file_format = None, format.lower()
+    custom_fields, timestamp_format = data.get(
+        "replace_fields"), data.get("timestamp_format")
     validation_status, response.status_code, sts, msg = exp.validate_request(
         "export.json", data)
     if validation_status:
@@ -79,9 +82,10 @@ async def export(
             query=expr, start=start,
             end=end, step=step)
         if resp_status:
-            labels, data_processed = exp.data_processor(source_data=resp_data)
-            csv_generator_status, sts, msg = exp.csv_generator(
-                data=data_processed, fields=labels, filename=filename)
+            labels, data_processed = exp.data_processor(
+                source_data=resp_data, custom_fields=custom_fields, timestamp_format=timestamp_format)
+            file_generator_status, sts, response.status_code, file, msg = exp.file_generator(
+                file_format=file_format, data=data_processed, fields=labels)
         else:
             sts, msg = resp_data.get("status"), resp_data.get("error")
 
@@ -91,8 +95,8 @@ async def export(
             "status": response.status_code,
             "query": expr,
             "method": request.method,
-            "request_path": request.url.path})
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
     if sts == "success":
-        return FileResponse(path=filename,
-                            background=BackgroundTask(exp.cleanup_files, filename))
+        return FileResponse(path=file,
+                            background=BackgroundTask(exp.cleanup_files, file))
     return {"status": sts, "query": expr, "message": msg}
