@@ -47,7 +47,7 @@ def replace_fields(data, custom_fields) -> None:
                 data[data.index(source_field)] = target_field
             elif isinstance(data, dict):
                 data[target_field] = data.pop(source_field)
-        except KeyError:
+        except (ValueError, KeyError):
             pass
 
 
