@@ -1,14 +1,5 @@
 # Changelog
 
-## 0.4.1 / 2024-06-30
-
-* [ENHANCEMENT] Added a new web page for reports. This page allows exporting Prometheus data in various formats directly from the web UI. #43
-* [ENHANCEMENT] Added functionality to change the timestamp format while exporting data via the /export API. Previously, the default value was Unix timestamp. Now, you can choose from the following options: iso8601, rfc2822, rfc3339, friendly, and unix (default). #41
-* [ENHANCEMENT] Added a new feature that allows replacing Prometheus labels (fields) in the final dataset: CSV, JSON, etc. #39
-* [ENHANCEMENT] Added support for exporting files in multiple formats via the /export API. Supported formats include: CSV, YAML (or YML), JSON, and JSON Lines (or NDJSON). E.g., ?format=csv|yaml|yml|json|ndjson|jsonlines. #37
-* [ENHANCEMENT] Improved the functionality that generates CSV files to ensure they have unique names instead of static names, resolving issues with responses getting mixed up between users. #35
-* [BUGFIX] Fixed exception handling for replace_fields in the /export API. #43
-
 ## 0.4.0 / 2024-06-23
 
 * [ENHANCEMENT] Added a new API endpoint: `/export` for exporting data from Prometheus as a CSV file. This feature allows users to export data from Prometheus easily. 

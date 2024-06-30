@@ -16,13 +16,6 @@
     "step": {
       "type": ["string", "null"],
       "pattern": "^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
-    },
-    "timestamp_format": {
-      "type": ["string"],
-      "pattern": "^(unix|iso8601|rfc2822|rfc3339|friendly)$"
-    },
-    "replace_fields": {
-      "type": "object"
     }
   },
   "required": ["expr"],
