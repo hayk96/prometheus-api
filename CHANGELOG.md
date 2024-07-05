@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 / 2024-07-05
+
+* [CHANGE] Replaced base64 encoded files in web assets (HTML, CSS) with common images and added a new route for images. 
+
 ## 0.4.1 / 2024-06-30
 
 * [ENHANCEMENT] Added a new web page for reports. This page allows exporting Prometheus data in various formats directly from the web UI. #43
