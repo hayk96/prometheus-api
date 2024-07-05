@@ -4,20 +4,38 @@ from src.utils.arguments import arg_parser
 from src.utils.log import logger
 from fastapi import APIRouter
 from fastapi import Request
+from os.path import exists
 
 router = APIRouter()
 
 if arg_parser().get("web.enable_ui") == "true":
-    rules_management = "ui/rules-management"
-    metrics_management = "ui/metrics-management"
-    reports = "ui/reports"
+    rules_management = "ui/pages/rules-management"
+    metrics_management = "ui/pages/metrics-management"
+    reports = "ui/pages/reports"
     logger.info("Starting web management UI")
 
     @router.get("/", response_class=HTMLResponse,
                 description="Renders home page of this application",
                 include_in_schema=False)
     async def homepage():
-        return FileResponse("ui/homepage/index.html")
+        return FileResponse("ui/pages/homepage/index.html")
+
+    @router.get(
+        "/images/{path}",
+        description="Returns common image resources for web UI",
+        include_in_schema=False)
+    async def images(path, request: Request):
+        assets_images = "ui/assets/images"
+        if exists(f"{assets_images}/{path}"):
+            return FileResponse(f"{assets_images}/{path}")
+        sts, msg = "404", "Not Found"
+        logger.info(
+            msg=msg,
+            extra={
+                "status": sts,
+                "method": request.method,
+                "request_path": request.url.path})
+        return f"{sts} {msg}"
 
     @router.get("/rules-management",
                 description="Renders rules management HTML page of this application",
