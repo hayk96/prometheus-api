@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrics Management</title>
+    <link rel="stylesheet" href="/metrics-management/style.css">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/hayk96/prometheus-api/main/docs/images/logo.png">
+</head>
+<body>
+    <div id="sidebar" class="sidebar">
+        <a href="#" class="sidebar-icon" id="homeBtn">
+            <img src="/images/icon-home.png" alt="Home"/>
+            <span class="icon-label">Home</span>
+        </a>
+        <a href="#" class="sidebar-icon" id="prometheusBtn">
+            <img src="/images/logo-prometheus.png" alt="Prometheus"/>
+            <span class="icon-label">Prometheus</span>
+        </a>
+        <a href="/rules-management" class="sidebar-icon" id="rulesManagement">
+            <img src="/images/icon-rules-management.png" alt="Rules Management"/>
+            <span class="icon-label">Rules Management</span>
+        </a>
+        <a href="/reports" class="sidebar-icon" id="reportsPage">
+            <img src="/images/icon-reports.png" alt="Reports"/>
+            <span class="icon-label">Reports</span>
+        </a>
+    </div>
+    <div class="main-content">
+        <div class="toolbar">
+            <button id="createPolicyBtn" class="action-btn create-btn">Create</button>
+            <input type="text" id="searchInput" placeholder="Search by pattern..." class="search-bar">
+        </div>
+        <div id="policiesList" class="policies-list"></div>
+        <div id="createPolicyModal" class="modal">
+            <div class="modal-content">
+                <h2>Create New Policy</h2>
+                <input type="text" id="newPolicyName" placeholder="Kubernetes policy" class="modal-input" />
+                <input type="text" id="newPolicyMatch" placeholder="{job='kubernetes-pods'}" class="modal-input" />
+                <input type="text" id="newPolicyKeepFor" placeholder="7d" class="modal-input" />
+                <textarea id="newPolicyDescription" placeholder="Keeps Kubernetes pod metrics for 7 days" class="modal-input"></textarea>
+                <div id="createPolicyError" class="modal-error-message"></div>
+                <button id="submitNewPolicy" class="modal-btn modal-btn-create">Create</button>
+                <button id="cancelCreatePolicyBtn" class="modal-btn modal-btn-cancel-create">Cancel</button>
+            </div>
+        </div>
+
+        <div id="editPolicyModal" class="modal">
+            <div class="modal-content">
+                <h2>Edit Policy</h2>
+                <input type="text" id="editPolicyName" class="modal-input" disabled />
+                <textarea type="text" id="editPolicyMatch" class="modal-input"></textarea>
+                <input type="text" id="editPolicyKeepFor" class="modal-input" />
+                <textarea id="editPolicyDescription" class="modal-input"></textarea>
+                <div id="editPolicyError" class="modal-error-message"></div>
+                <button id="submitEditPolicy" class="modal-btn modal-btn-confirm">Save</button>
+                <button id="cancelEditPolicyBtn" class="modal-btn modal-btn-cancel">Cancel</button>
+            </div>
+        </div>
+
+        <div id="deletePolicyModal" class="modal">
+            <div class="modal-content">
+                <h2>Delete Policy</h2>
+                <p id="deletePolicyMessage">Are you sure you want to delete this policy?</p>
+                <button id="confirmDeletePolicyBtn" class="modal-btn modal-btn-confirm delete-btn">Delete</button>
+                <button id="cancelDeletePolicyBtn" class="modal-btn modal-btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script src="/metrics-management/script.js"></script>
+</body>
+</html>
