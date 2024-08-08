@@ -16,7 +16,7 @@ def openapi(app: FastAPI):
                     "providing additional features and addressing its limitations. "
                     "Running as a sidecar alongside the Prometheus server enables "
                     "users to extend the capabilities of the API.",
-        version="0.4.2",
+        version="0.5.0",
         contact={
             "name": "Hayk Davtyan",
             "url": "https://hayk96.github.io",
@@ -28,6 +28,7 @@ def openapi(app: FastAPI):
             "url": "https://raw.githubusercontent.com/hayk96/prometheus-api/main/LICENSE"
         },
         routes=app.routes,
+        servers=[{"url": 'https://example.com'}]
     )
     openapi_schema["info"]["x-logo"] = {
         "url": "https://raw.githubusercontent.com/hayk96/prometheus-api/main/docs/images/logo.png",

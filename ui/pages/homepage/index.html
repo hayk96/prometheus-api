@@ -160,8 +160,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" id="apiDocumentationLink" class="nav-link">
-                    <img src="/images/icon-web-code.png" alt="Prometheus Docs Logo">API Documentation
+                <a href="#" id="apiReferenceLink" class="nav-link">
+                    <img src="/images/icon-web-code.png" alt="API Reference Logo">API Reference
                 </a>
             </li>
         </ul>
@@ -175,7 +175,7 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('apiDocumentationLink').href = window.location.origin + '/redoc';
+            document.getElementById('apiReferenceLink').href = window.location.origin + '/redoc';
             document.getElementById('openPrometheusButton').onclick = function() {
                 window.location.href = window.location.origin + '/graph';
             };
