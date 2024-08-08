@@ -28,6 +28,7 @@ def openapi(app: FastAPI):
             "url": "https://raw.githubusercontent.com/hayk96/prometheus-api/main/LICENSE"
         },
         routes=app.routes,
+        servers=[{"url": 'https://example.com'}]
     )
     openapi_schema["info"]["x-logo"] = {
         "url": "https://raw.githubusercontent.com/hayk96/prometheus-api/main/docs/images/logo.png",
