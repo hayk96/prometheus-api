@@ -11,7 +11,6 @@ from typing import Optional, List
 
 class UpdateConfig(BaseModel, extra=Extra.allow):
     global_: Optional[globals.GlobalConfig] = Field(
-        ...,
         alias='global',
         description="The global configuration specifies parameters that are valid in all other configuration "
         "contexts. They also serve as defaults for other configuration sections.")
