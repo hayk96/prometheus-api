@@ -36,7 +36,7 @@ def update_prometheus_yml(data: str) -> tuple[bool, str]:
             f.write(data)
     except BaseException as e:
         logger.error(
-            f"Failed to update Prometheus configuration file: {prom_config_file}. {e}")
+            f"Failed to update Prometheus configuration file. {e}")
         return False, str(e)
     else:
         logger.debug(
@@ -55,3 +55,14 @@ def partial_update(user_data: dict, data: dict):
             data[k].update(user_data[k])
         elif isinstance(user_data[k], str) and isinstance(data[k], str):
             data[k] = user_data[k]
+
+
+def rename_global_keyword(data: dict) -> None:
+    """"
+    This function replaces the key 'global_' with 'global'
+    from the user's input, since Python does not allow a
+    key with the name 'global'
+    """
+    if "global_" in data:
+        data["global"] = data["global_"]
+        del data["global_"]
