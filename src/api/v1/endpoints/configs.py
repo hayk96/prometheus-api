@@ -142,8 +142,7 @@ async def update_config(
             "method": request.method,
             "request_path": request.url.path})
 
-    return PlainTextResponse(data_yaml) if sts == "success" else {
-        "status": sts, "message": msg}
+    return {"status": sts, "message": msg}
 
 
 @router.patch("/configs",
@@ -191,5 +190,4 @@ async def partial_update(
             "method": request.method,
             "request_path": request.url.path})
 
-    return PlainTextResponse(data_yaml) if sts == "success" else {
-        "status": sts, "message": msg}
+    return {"status": sts, "message": msg}
