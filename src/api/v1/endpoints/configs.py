@@ -14,7 +14,7 @@ prometheus = Rule()
 
 @router.get("/configs",
             name="Get Prometheus configuration",
-            description="Get Prometheus configuration in various formats depending on the request header",
+            description="Get Prometheus configuration in various formats depending on the `Content-Type` request header",
             status_code=status.HTTP_200_OK,
             tags=["configs"],
             responses={
@@ -116,7 +116,7 @@ async def get_config(
                             "example": [
                                 {
                                     "status": "success",
-                                    "message": "Configuration applied successfully"
+                                    "message": "Configuration updated successfully"
                                 }
                             ]
                         }
@@ -157,8 +157,8 @@ async def update_config(
             UpdateConfig,
             Body(
                 openapi_examples={
-                    "Prometheus configuration": {
-                        "description": "Update Prometheus configuration file",
+                    "Update Prometheus configuration": {
+                        "description": "Update entire Prometheus configuration file",
                         "value": {
                             "global": {
                                 "scrape_interval": "30s",
@@ -201,7 +201,7 @@ async def update_config(
         config_update_status, msg = cfg.update_prometheus_yml(data=data_yaml)
         if config_update_status:
             response.status_code, sts, msg = prometheus.reload()
-            msg = "Configuration applied successfully" if sts == "success" else msg
+            msg = "Configuration updated successfully" if sts == "success" else msg
         else:
             response.status_code, sts = 500, "error"
     logger.info(
@@ -215,8 +215,8 @@ async def update_config(
 
 
 @router.patch("/configs",
-              name="Update Prometheus configuration",
-              description="Update Prometheus configuration file",
+              name="Update part of Prometheus configuration",
+              description="Update specific part of Prometheus configuration file",
               status_code=status.HTTP_200_OK,
               tags=["configs"],
               responses={
@@ -227,7 +227,7 @@ async def update_config(
                               "example": [
                                   {
                                       "status": "success",
-                                      "message": "Configuration applied successfully"
+                                      "message": "Configuration updated successfully"
                                   }
                               ]
                           }
@@ -268,8 +268,8 @@ async def partial_update(
             UpdateConfig,
             Body(
                 openapi_examples={
-                    "Alertmanager configuration": {
-                        "description": "Update Alertmanager configuration part only",
+                    "Update Alertmanager configuration": {
+                        "description": "Update Alertmanager configuration settings",
                         "value": {
                             "alerting": {
                                 "alertmanagers": [
@@ -307,7 +307,7 @@ async def partial_update(
                 data=data_yaml)
             if config_update_status:
                 response.status_code, sts, msg = prometheus.reload()
-                msg = "Configuration applied successfully" if sts == "success" else msg
+                msg = "Configuration updated successfully" if sts == "success" else msg
             else:
                 response.status_code, sts = 500, "error"
         else:
