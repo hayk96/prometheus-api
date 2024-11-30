@@ -34,7 +34,6 @@ class UpdateConfig(BaseModel, extra=Extra.allow):
         description="Storage related settings that are runtime reloadable.")
     tracing: Optional[TraceExporterConfig] = Field(
         description="Configures exporting traces.")
-    _request_body_examples = {}
 
     def __str__(self):
         def serialize(value):

@@ -108,7 +108,47 @@ async def get_config(
             description="Update entire Prometheus configuration file",
             status_code=status.HTTP_200_OK,
             tags=["configs"],
-            responses={}
+            responses={
+                200: {
+                    "description": "OK",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "success",
+                                    "message": "Configuration applied successfully"
+                                }
+                            ]
+                        }
+                    }
+                },
+                400: {
+                    "description": "Bad Request",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "error",
+                                    "message": "Additional properties are not allowed (globals was unexpected)"
+                                }
+                            ]
+                        }
+                    }
+                },
+                500: {
+                    "description": "Internal Server Error",
+                    "content": {
+                        "application/json": {
+                            "example": [
+                                {
+                                    "status": "error",
+                                    "message": "failed to reload config: couldn't load configuration (--config.file=\"/etc/prometheus/prometheus.yml\"): parsing YAML file /etc/prometheus/prometheus.yml: global scrape timeout greater than scrape interval\n"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
             )
 async def update_config(
         request: Request,
@@ -116,11 +156,40 @@ async def update_config(
         data: Annotated[
             UpdateConfig,
             Body(
-                openapi_examples={},
+                openapi_examples={
+                    "Prometheus configuration": {
+                        "description": "Update Prometheus configuration file",
+                        "value": {
+                            "global": {
+                                "scrape_interval": "30s",
+                                "scrape_timeout": "30s",
+                                "evaluation_interval": "1m"
+                            },
+                            "scrape_configs": [
+                                {
+                                    "job_name": "prometheus",
+                                    "metrics_path": "/metrics",
+                                    "scheme": "http",
+                                    "static_configs": [
+                                        {
+                                            "targets": [
+                                                "localhost:9090"
+                                            ],
+                                            "labels": {
+                                                "instance": "prometheus-server",
+                                                "env:": "production"
+                                            }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                }
             )
         ],
 ):
-    user_data = data.dict(exclude_defaults=True)
+    user_data = data.dict(exclude_unset=True)
     cfg.rename_global_keyword(user_data)
     validation_status, response.status_code, sts, msg = \
         validate_request("configs.json", user_data)
@@ -132,7 +201,7 @@ async def update_config(
         config_update_status, msg = cfg.update_prometheus_yml(data=data_yaml)
         if config_update_status:
             response.status_code, sts, msg = prometheus.reload()
-            msg = "Configuration applied successfully"
+            msg = "Configuration applied successfully" if sts == "success" else msg
         else:
             response.status_code, sts = 500, "error"
     logger.info(
@@ -150,7 +219,47 @@ async def update_config(
               description="Update Prometheus configuration file",
               status_code=status.HTTP_200_OK,
               tags=["configs"],
-              responses={}
+              responses={
+                  200: {
+                      "description": "OK",
+                      "content": {
+                          "application/json": {
+                              "example": [
+                                  {
+                                      "status": "success",
+                                      "message": "Configuration applied successfully"
+                                  }
+                              ]
+                          }
+                      }
+                  },
+                  400: {
+                      "description": "Bad Request",
+                      "content": {
+                          "application/json": {
+                              "example": [
+                                  {
+                                      "status": "error",
+                                      "message": "Additional properties are not allowed (globals was unexpected)"
+                                  }
+                              ]
+                          }
+                      }
+                  },
+                  500: {
+                      "description": "Internal Server Error",
+                      "content": {
+                          "application/json": {
+                              "example": [
+                                  {
+                                      "status": "error",
+                                      "message": "failed to reload config: couldn't load configuration (--config.file=\"/etc/prometheus/prometheus.yml\"): parsing YAML file /etc/prometheus/prometheus.yml: global scrape timeout greater than scrape interval\n"
+                                  }
+                              ]
+                          }
+                      }
+                  }
+              }
               )
 async def partial_update(
         request: Request,
@@ -158,11 +267,31 @@ async def partial_update(
         data: Annotated[
             UpdateConfig,
             Body(
-                openapi_examples={},
+                openapi_examples={
+                    "Alertmanager configuration": {
+                        "description": "Update Alertmanager configuration part only",
+                        "value": {
+                            "alerting": {
+                                "alertmanagers": [
+                                    {
+                                        "scheme": "https",
+                                        "static_configs": [
+                                            {
+                                                "targets": [
+                                                    "example-alertmanager.com"
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
             )
         ],
 ):
-    user_data = data.dict(exclude_defaults=True)
+    user_data = data.dict(exclude_unset=True)
     cfg.rename_global_keyword(user_data)
     validation_status, response.status_code, sts, msg = \
         validate_request("configs.json", user_data)
@@ -178,7 +307,7 @@ async def partial_update(
                 data=data_yaml)
             if config_update_status:
                 response.status_code, sts, msg = prometheus.reload()
-                msg = "Configuration applied successfully"
+                msg = "Configuration applied successfully" if sts == "success" else msg
             else:
                 response.status_code, sts = 500, "error"
         else:
