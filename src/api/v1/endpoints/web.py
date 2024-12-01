@@ -9,6 +9,7 @@ from os.path import exists
 router = APIRouter()
 
 if arg_parser().get("web.enable_ui") == "true":
+    config_management = "ui/pages/config-management"
     rules_management = "ui/pages/rules-management"
     metrics_management = "ui/pages/metrics-management"
     reports = "ui/pages/reports"
@@ -28,6 +29,28 @@ if arg_parser().get("web.enable_ui") == "true":
         assets_images = "ui/assets/images"
         if exists(f"{assets_images}/{path}"):
             return FileResponse(f"{assets_images}/{path}")
+        sts, msg = "404", "Not Found"
+        logger.info(
+            msg=msg,
+            extra={
+                "status": sts,
+                "method": request.method,
+                "request_path": request.url.path})
+        return f"{sts} {msg}"
+
+    @router.get("/config-management",
+                description="Renders config management HTML page of this application",
+                include_in_schema=False)
+    async def config_management_page():
+        return FileResponse(f"{config_management}/index.html")
+
+    @router.get(
+        "/config-management/{path}",
+        description="Returns JavaScript and CSS files of the config management page",
+        include_in_schema=False)
+    async def config_management_files(path, request: Request):
+        if path in ["script.js", "style.css"]:
+            return FileResponse(f"{config_management}/{path}")
         sts, msg = "404", "Not Found"
         logger.info(
             msg=msg,
