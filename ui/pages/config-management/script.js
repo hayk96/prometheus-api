@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const PROMETHEUS_API_ADDR = window.location.origin;
     let codeMirrorInstance;
 
+    const toolbar = document.querySelector('.toolbar');
     const editConfigBtn = document.getElementById('editConfigBtn');
     const yamlEditor = document.getElementById('yamlEditor');
     const editorContainer = document.getElementById('editorContainer');
@@ -43,9 +44,34 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) throw new Error(`Failed to fetch config: ${response.statusText}`);
             const yaml = await response.text();
 
+            toolbar.style.display = 'none';
             editorContainer.style.display = 'block';
             codeMirrorInstance.setValue(yaml);
             codeMirrorInstance.refresh();
+        } catch (error) {
+            showModal(`Error: ${error.message}`);
+        }
+    };
+
+    const saveConfig = async () => {
+        const yaml = codeMirrorInstance.getValue();
+        try {
+            const jsonData = jsyaml.load(yaml);
+
+            const response = await fetch(`${PROMETHEUS_API_ADDR}/api/v1/configs`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(jsonData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.message || 'Unknown error');
+
+            editorContainer.style.display = 'none';
+            codeMirrorInstance.setValue('');
+            toolbar.style.display = 'flex';
+            showModal(`Configuration saved successfully.`);
         } catch (error) {
             showModal(`Error: ${error.message}`);
         }
@@ -74,34 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     editConfigBtn.addEventListener('click', fetchConfig);
 
-    saveBtn.addEventListener('click', async () => {
-        const yaml = codeMirrorInstance.getValue();
-        try {
-            const jsonData = jsyaml.load(yaml);
-
-            const response = await fetch(`${PROMETHEUS_API_ADDR}/api/v1/configs`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(jsonData),
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) throw new Error(result.message || 'Unknown error');
-
-            editorContainer.style.display = 'none';
-            codeMirrorInstance.setValue('');
-            showModal(`Configuration saved successfully.`);
-        } catch (error) {
-            showModal(`Error: ${error.message}`);
-        }
-    });
+    saveBtn.addEventListener('click', saveConfig);
 
     applyBtn.addEventListener('click', applyConfig);
 
     cancelBtn.addEventListener('click', () => {
         editorContainer.style.display = 'none';
         codeMirrorInstance.setValue('');
+        toolbar.style.display = 'flex';
     });
 
     modal.addEventListener('click', hideModal);
