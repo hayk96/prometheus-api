@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelBtn = document.getElementById('cancelBtn');
     const modal = document.getElementById('responseModal');
     const modalText = document.getElementById('modal-text');
-    const closeModalBtn = document.getElementById('closeModalBtn');
 
     document.getElementById('homeBtn').addEventListener('click', () => {
         window.location.href = `${PROMETHEUS_API_ADDR}`;
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const saveOrApplyConfig = async (isApply = false) => {
+    const applyConfig = async () => {
         const yaml = codeMirrorInstance.getValue();
         try {
             const jsonData = jsyaml.load(yaml);
@@ -67,18 +66,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) throw new Error(result.message || 'Unknown error');
 
-            showModal(`Configuration ${isApply ? 'applied' : 'saved'} successfully.`);
+            showModal(`Configuration applied successfully.`);
         } catch (error) {
             showModal(`Error: ${error.message}`);
         }
     };
 
     editConfigBtn.addEventListener('click', fetchConfig);
-    saveBtn.addEventListener('click', () => saveOrApplyConfig(false));
-    applyBtn.addEventListener('click', () => saveOrApplyConfig(true));
+
+    saveBtn.addEventListener('click', async () => {
+        const yaml = codeMirrorInstance.getValue();
+        try {
+            const jsonData = jsyaml.load(yaml);
+
+            const response = await fetch(`${PROMETHEUS_API_ADDR}/api/v1/configs`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(jsonData),
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.message || 'Unknown error');
+
+            editorContainer.style.display = 'none';
+            codeMirrorInstance.setValue('');
+            showModal(`Configuration saved successfully.`);
+        } catch (error) {
+            showModal(`Error: ${error.message}`);
+        }
+    });
+
+    applyBtn.addEventListener('click', applyConfig);
+
     cancelBtn.addEventListener('click', () => {
         editorContainer.style.display = 'none';
         codeMirrorInstance.setValue('');
     });
-    closeModalBtn.addEventListener('click', hideModal);
+
+    modal.addEventListener('click', hideModal);
 });
