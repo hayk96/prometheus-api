@@ -903,6 +903,17 @@
       },
       "additionalProperties": false
     },
+    "runtime": {
+      "description": "Configure the Go garbage collector GOGC parameter",
+      "type": "object",
+      "properties": {
+        "gogc": {
+          "description": "Lowering this number increases CPU usage. See: https://tip.golang.org/doc/gc-guide#GOGC",
+          "type": "integer",
+          "default": 75
+        }
+      }
+    },
     "rule_files": {
       "description": "Rule files specifies a list of globs. Rules and alerts are read from all matching files.",
       "type": ["array", "null"],
