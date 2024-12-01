@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Config Management</title>
+    <link rel="stylesheet" href="/config-management/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+</head>
+<body>
+    <div id="sidebar" class="sidebar">
+        <a href="/" class="sidebar-icon" id="homeBtn">
+            <img src="/images/icon-home.png" alt="Home"/>
+            <span class="icon-label">Home</span>
+        </a>
+        <a href="/graph" class="sidebar-icon" id="prometheusBtn">
+            <img src="/images/logo-prometheus.png" alt="Prometheus"/>
+            <span class="icon-label">Prometheus</span>
+        </a>
+        <a href="/rules-management" class="sidebar-icon" id="rulesManagement">
+            <img src="/images/icon-rules-management.png" alt="Rules Management"/>
+            <span class="icon-label">Rules Management</span>
+        </a>
+        <a href="/metrics-management" class="sidebar-icon" id="metricsManagement">
+            <img src="/images/icon-metrics-management.png" alt="Metrics Management"/>
+            <span class="icon-label">Metrics Management</span>
+        </a>
+        <a href="/reports" class="sidebar-icon" id="reportsPage">
+            <img src="/images/icon-reports.png" alt="Reports"/>
+            <span class="icon-label">Reports</span>
+        </a>
+    </div>
+    <div class="main-content">
+        <div class="toolbar">
+            <button id="editConfigBtn" class="action-btn">Edit Configuration</button>
+        </div>
+        <div id="editorContainer" class="editor-container" style="display: none;">
+            <textarea id="yamlEditor"></textarea>
+            <div class="editor-actions">
+                <button id="cancelBtn" class="action-btn gray-btn">Cancel</button>
+                <button id="saveBtn" class="action-btn save-btn">Save</button>
+                <button id="applyBtn" class="action-btn apply-btn">Apply</button>
+            </div>
+        </div>
+        <div id="responseModal" class="modal">
+            <div class="modal-content">
+                <p id="modal-text"></p>
+                <button id="closeModalBtn" class="modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/yaml/yaml.min.js"></script>
+    <script src="/config-management/script.js"></script>
+</body>
+</html>
