@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Response, Request, Body, status
+from src.utils.validations import validate_schema
 from src.utils.arguments import arg_parser
 from string import ascii_lowercase
 from src.models.rule import Rule
 from src.utils.log import logger
-from src.core.base import validate_schema
 from typing import Annotated
 from random import choices
 from shutil import copy

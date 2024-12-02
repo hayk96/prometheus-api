@@ -1,7 +1,7 @@
 from src.models.policy import MetricsLifecyclePolicyCreate, MetricsLifecyclePolicyUpdate
 from fastapi import APIRouter, Response, Request, Body, status
 from apscheduler.triggers.date import DateTrigger
-from src.core.base import validate_schema
+from src.utils.validations import validate_schema
 from src.utils.scheduler import schedule
 from src.core import policies as mlp
 from src.utils.log import logger

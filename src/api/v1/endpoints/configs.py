@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Response, Request, Body, status
+from src.utils.validations import validate_schema
 from fastapi.responses import PlainTextResponse
 from src.core.configs import PrometheusConfig
 from src.models.config import UpdateConfig
-from src.core.base import validate_schema
 from src.utils.log import logger
 from typing import Annotated
 import yaml
