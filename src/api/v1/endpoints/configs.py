@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Response, Request, Body, status
 from fastapi.responses import PlainTextResponse
-from src.core.export import validate_request
+from src.core.configs import PrometheusConfig
 from src.models.config import UpdateConfig
-from src.core import configs as cfg
-from src.models.rule import Rule
+from src.core.base import validate_schema
 from src.utils.log import logger
 from typing import Annotated
 import yaml
 
 router = APIRouter()
-prometheus = Rule()
+prom = PrometheusConfig()
 
 
 @router.get("/configs",
@@ -84,7 +83,7 @@ async def get_config(
         request: Request,
         response: (Response or PlainTextResponse)
 ):
-    cfg_status, response.status_code, cfg_dict = cfg.get_prometheus_config()
+    cfg_status, response.status_code, cfg_dict = prom.get_prometheus_config()
     if cfg_status:
         if request.headers.get("content-type") == "application/yaml":
             data_yaml = yaml.dump(
@@ -190,17 +189,17 @@ async def update_config(
         ],
 ):
     user_data = data.dict(exclude_unset=True)
-    cfg.rename_global_keyword(user_data)
+    prom.rename_global_keyword(user_data=user_data)
     validation_status, response.status_code, sts, msg = \
-        validate_request("configs.json", user_data)
+        validate_schema("configs.json", user_data)
     if validation_status:
         data_yaml = yaml.dump(
             user_data,
             Dumper=yaml.SafeDumper,
             sort_keys=True)
-        config_update_status, msg = cfg.update_prometheus_yml(data=data_yaml)
+        config_update_status, msg = prom.update_prometheus_yml(data=data_yaml)
         if config_update_status:
-            response.status_code, sts, msg = prometheus.reload()
+            response.status_code, sts, msg = prom.reload()
             msg = "Configuration updated successfully" if sts == "success" else msg
         else:
             response.status_code, sts = 500, "error"
@@ -292,21 +291,21 @@ async def partial_update(
         ],
 ):
     user_data = data.dict(exclude_unset=True)
-    cfg.rename_global_keyword(user_data)
+    prom.rename_global_keyword(user_data)
     validation_status, response.status_code, sts, msg = \
-        validate_request("configs.json", user_data)
+        validate_schema("configs.json", user_data)
     if validation_status:
-        cfg_status, response.status_code, cfg_dict = cfg.get_prometheus_config()
+        cfg_status, response.status_code, cfg_dict = prom.get_prometheus_config()
         if cfg_status:
-            cfg.partial_update(user_data, cfg_dict)
+            prom.partial_update(user_data, cfg_dict)
             data_yaml = yaml.dump(
                 user_data,
                 Dumper=yaml.SafeDumper,
                 sort_keys=True)
-            config_update_status, msg = cfg.update_prometheus_yml(
+            config_update_status, msg = prom.update_prometheus_yml(
                 data=data_yaml)
             if config_update_status:
-                response.status_code, sts, msg = prometheus.reload()
+                response.status_code, sts, msg = prom.reload()
                 msg = "Configuration updated successfully" if sts == "success" else msg
             else:
                 response.status_code, sts = 500, "error"

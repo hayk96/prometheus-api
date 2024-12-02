@@ -1,6 +1,7 @@
 from src.models.policy import MetricsLifecyclePolicyCreate, MetricsLifecyclePolicyUpdate
 from fastapi import APIRouter, Response, Request, Body, status
 from apscheduler.triggers.date import DateTrigger
+from src.core.base import validate_schema
 from src.utils.scheduler import schedule
 from src.core import policies as mlp
 from src.utils.log import logger
@@ -185,7 +186,7 @@ async def create(
     data = policy.dict()
     validation_status, response.status_code, sts, msg = mlp.validate_prom_admin_api()
     if validation_status:
-        validation_status, response.status_code, sts, msg = mlp.validate_policy(
+        validation_status, response.status_code, sts, msg = validate_schema(
             "policies_create.json", data)
         if validation_status:
             validation_status, response.status_code, sts, msg, val = mlp.validate_duration(
@@ -281,7 +282,7 @@ async def update(
     data = policy.dict(exclude_unset=True)
     validation_status, response.status_code, sts, msg = mlp.validate_prom_admin_api()
     if validation_status:
-        validation_status, response.status_code, sts, msg = mlp.validate_policy(
+        validation_status, response.status_code, sts, msg = validate_schema(
             "policies_update.json", data)
         if validation_status:
             validation_status, response.status_code, sts, msg, val = mlp.validate_duration(
