@@ -197,7 +197,7 @@ async def update_config(
         data_yaml = yaml.dump(
             user_data,
             Dumper=yaml.SafeDumper,
-            sort_keys=False)
+            sort_keys=True)
         config_update_status, msg = cfg.update_prometheus_yml(data=data_yaml)
         if config_update_status:
             response.status_code, sts, msg = prometheus.reload()
@@ -302,7 +302,7 @@ async def partial_update(
             data_yaml = yaml.dump(
                 user_data,
                 Dumper=yaml.SafeDumper,
-                sort_keys=False)
+                sort_keys=True)
             config_update_status, msg = cfg.update_prometheus_yml(
                 data=data_yaml)
             if config_update_status:
