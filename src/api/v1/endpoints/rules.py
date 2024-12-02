@@ -3,13 +3,18 @@ from src.utils.arguments import arg_parser
 from string import ascii_lowercase
 from src.models.rule import Rule
 from src.utils.log import logger
+from src.core.base import validate_schema
 from typing import Annotated
 from random import choices
 from shutil import copy
 import time
 import os
+from src.core.prometheus import PrometheusRequest
 
 router = APIRouter()
+prom = PrometheusRequest()
+
+rule_path = arg_parser().get('rule.path')
 
 
 def create_prometheus_rule(
@@ -23,18 +28,18 @@ def create_prometheus_rule(
     """
 
     while True:
-        validation_status, sts, msg = rule.validate_rule()
+        validation_status, response.status_code, sts, msg = validate_schema("rules.json", rule.data)
         if not validation_status:
             response.status_code = status.HTTP_400_BAD_REQUEST
             break
-        create_rule_status, sts, msg = rule.create_rule(file)
+        create_rule_status, sts, msg = prom.create_rule(file, data=rule.data)
         if not create_rule_status:
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             break
         time.sleep(0.1)
-        response.status_code, sts, msg = rule.reload()
+        response.status_code, sts, msg = prom.reload()
         if response.status_code != 200:
-            rule.delete_rule(file)
+            prom.delete_rule(file)
             break
         msg = "The rule was created successfully"
         response.status_code = status.HTTP_201_CREATED
@@ -117,7 +122,7 @@ async def create(
 
     while True:
         file = f"{file_prefix}{''.join(choices(ascii_lowercase, k=15))}{file_suffix}"
-        if os.path.exists(f"{Rule._rule_path}/{file}"):
+        if os.path.exists(f"{rule_path}/{file}"):
             continue
         break
     return create_prometheus_rule(r, request, response, file)
@@ -197,9 +202,9 @@ async def update(
 ):
     r = Rule(data=rule.data)
 
-    if file and os.path.exists(f"{Rule._rule_path}/{file}"):
+    if file and os.path.exists(f"{rule_path}/{file}"):
         if recreate.lower() == "true":
-            orig_file, temp_file = f"{Rule._rule_path}/{file}", f"{Rule._rule_path}/{file}.temp"
+            orig_file, temp_file = f"{rule_path}/{file}", f"{rule_path}/{file}.temp"
             copy(orig_file, temp_file)
             resp = create_prometheus_rule(r, request, response, file)
             if resp.get("status") == "success":
@@ -258,17 +263,16 @@ async def update(
                }
                )
 async def delete(file, request: Request, response: Response):
-    r = Rule()
 
     while True:
-        if not os.path.exists(f"{Rule._rule_path}/{file}"):
+        if not os.path.exists(f"{rule_path}/{file}"):
             response.status_code, sts, msg = status.HTTP_404_NOT_FOUND, "error", "File not found"
             break
-        delete_rule_status, sts, msg = r.delete_rule(file)
+        delete_rule_status, sts, msg = prom.delete_rule(file)
         if not delete_rule_status:
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             break
-        reload_status, sts, msg = r.reload()
+        reload_status, sts, msg = prom.reload()
         if reload_status != 200:
             response.status_code = reload_status
             break
