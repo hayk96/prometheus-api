@@ -2,14 +2,17 @@ from src.utils.arguments import arg_parser
 from src.utils.log import logger
 import requests
 import yaml
+import os
 
 
 class PrometheusRequest:
 
     def __init__(self,
                  prom_addr=arg_parser().get("prom.addr"),
-                 prom_config_file=arg_parser().get("config.file")):
+                 prom_config_file=arg_parser().get("config.file"),
+                 prom_rule_path=arg_parser().get("rule.path")):
         self.prom_addr = prom_addr
+        self.prom_rule_path = prom_rule_path
         self.prom_config_file = prom_config_file
 
     def get_prometheus_config(self) -> tuple[bool, int, dict]:
@@ -46,6 +49,24 @@ class PrometheusRequest:
             logger.debug(
                 f"Successfully updated Prometheus configuration file: {self.prom_config_file}")
             return True, "success"
+
+    def create_rule(self, file, data) -> tuple[bool, str, str]:
+        """Creates Prometheus rule file"""
+        try:
+            with open(f"{self.prom_rule_path}/{file}", "w") as f:
+                rule_as_yaml = yaml.dump(data)
+                f.write(rule_as_yaml)
+        except (IOError, yaml.YAMLError) as e:
+            return False, "error", str(e)
+        return True, "success", "The rule was created successfully"
+
+    def delete_rule(self, file) -> tuple[bool, str, str]:
+        """Deletes Prometheus rule file"""
+        try:
+            os.remove(f"{self.prom_rule_path}/{file}")
+        except OSError as e:
+            return False, "error", str(e.strerror)
+        return True, "success", "The rule was deleted successfully"
 
     def reload(self) -> tuple[int, str, str]:
         """Reloads the Prometheus configuration"""
