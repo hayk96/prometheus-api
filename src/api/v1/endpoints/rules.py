@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Response, Request, Body, status
 from src.utils.arguments import arg_parser
-from string import ascii_lowercase
 from src.models.rule import Rule
 from src.utils.log import logger
 from typing import Annotated
-from random import choices
 from shutil import copy
+from uuid import uuid4
 import os
 from src.core.prometheus import PrometheusRequest
 
@@ -76,12 +75,8 @@ async def create(
     r = Rule(data=rule.data)
     file_prefix = f"{arg_parser().get('file.prefix')}-" if arg_parser().get('file.prefix') else ""
     file_suffix = arg_parser().get('file.extension')
+    file = f"{file_prefix}{str(uuid4())}{file_suffix}"
 
-    while True:
-        file = f"{file_prefix}{''.join(choices(ascii_lowercase, k=15))}{file_suffix}"
-        if os.path.exists(f"{rule_path}/{file}"):
-            continue
-        break
     response.status_code, resp = prom.create_rule(r, file)
     resp["file"] = file
     logger.info(
