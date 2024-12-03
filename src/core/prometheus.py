@@ -1,9 +1,10 @@
-from src.utils.arguments import arg_parser
 from src.utils.validations import validate_schema
-import time
+from src.utils.arguments import arg_parser
 from src.models.rule import Rule
 from src.utils.log import logger
+from uuid import uuid4
 import requests
+import time
 import yaml
 import os
 
@@ -70,11 +71,21 @@ class PrometheusRequest:
             return 500, "error", str(e)
         return r.status_code, "success" if r.status_code == 200 else "error", r.text
 
-    def create_rule(self, rule: Rule, file: str) -> tuple[int, dict]:
+    def create_rule(self, rule: Rule, file: str = "") -> tuple[int, dict]:
         """
         A common function for the /rules API
         is used in the POST and PUT routes.
         """
+
+        def __filename_generator() -> str:
+            """
+            Generated a random filename depending on the
+            '--file.prefix' and '--file.extension' flags
+            """
+            nonlocal file
+            file_prefix = f"{arg_parser().get('file.prefix')}-" if arg_parser().get('file.prefix') else ""
+            file_suffix = arg_parser().get('file.extension')
+            return f"{file_prefix}{str(uuid4())}{file_suffix}" if file == "" else file
 
         def __create_rule_file(data) -> tuple[bool, str, str]:
             """Creates Prometheus rule file"""
@@ -87,6 +98,7 @@ class PrometheusRequest:
                 return False, "error", str(e)
             return True, "success", "The rule was created successfully"
 
+        file = __filename_generator()
         while True:
             validation_status, status_code, sts, msg = validate_schema("rules.json", rule.data)
             if not validation_status:
@@ -105,5 +117,5 @@ class PrometheusRequest:
             status_code = 201
             break
 
-        resp = {"status": sts, "message": msg}
+        resp = {"status": sts, "message": msg, "file": file}
         return status_code, resp

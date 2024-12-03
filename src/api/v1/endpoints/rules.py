@@ -4,7 +4,6 @@ from src.models.rule import Rule
 from src.utils.log import logger
 from typing import Annotated
 from shutil import copy
-from uuid import uuid4
 import os
 from src.core.prometheus import PrometheusRequest
 
@@ -73,12 +72,7 @@ async def create(
         ]
 ):
     r = Rule(data=rule.data)
-    file_prefix = f"{arg_parser().get('file.prefix')}-" if arg_parser().get('file.prefix') else ""
-    file_suffix = arg_parser().get('file.extension')
-    file = f"{file_prefix}{str(uuid4())}{file_suffix}"
-
-    response.status_code, resp = prom.create_rule(r, file)
-    resp["file"] = file
+    response.status_code, resp = prom.create_rule(r)
     logger.info(
         msg=resp["message"],
         extra={
@@ -183,6 +177,7 @@ async def update(
                 "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
         return {"status": "error", "message": msg}
     response.status_code, resp = prom.create_rule(r, file)
+    del resp["file"]
     return resp
 
 
