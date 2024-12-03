@@ -219,23 +219,7 @@ async def update(
                }
                )
 async def delete(file, request: Request, response: Response):
-
-    while True:
-        if not os.path.exists(f"{rule_path}/{file}"):
-            response.status_code, sts, msg = status.HTTP_404_NOT_FOUND, "error", "File not found"
-            break
-        delete_rule_status, sts, msg = prom.delete_rule(file)
-        if not delete_rule_status:
-            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            break
-        reload_status, sts, msg = prom.reload()
-        if reload_status != 200:
-            response.status_code = reload_status
-            break
-        msg = "The rule was deleted successfully"
-        response.status_code = status.HTTP_204_NO_CONTENT
-        break
-
+    response.status_code, sts, msg = prom.delete_rule(file)
     logger.info(
         msg=msg,
         extra={

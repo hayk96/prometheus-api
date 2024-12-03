@@ -55,13 +55,34 @@ class PrometheusRequest:
                 f"Successfully updated Prometheus configuration file: {self.prom_config_file}")
             return True, "success"
 
-    def delete_rule(self, file) -> tuple[bool, str, str]:
+    def delete_rule(self, file) -> tuple[int, str, str]:
         """Deletes Prometheus rule file"""
-        try:
-            os.remove(f"{self.prom_rule_path}/{file}")
-        except OSError as e:
-            return False, "error", str(e.strerror)
-        return True, "success", "The rule was deleted successfully"
+
+        def __delete_rule_file() -> tuple[bool, str, str]:
+            """Deletes Prometheus rule file"""
+            nonlocal file
+            try:
+                os.remove(f"{self.prom_rule_path}/{file}")
+            except OSError as e:
+                return False, "error", str(e.strerror)
+            return True, "success", "The rule was deleted successfully"
+
+        while True:
+            if not os.path.exists(f"{self.prom_rule_path}/{file}"):
+                status_code, sts, msg = 404, "error", "File not found"
+                break
+            delete_rule_status, sts, msg = __delete_rule_file()
+            if not delete_rule_status:
+                status_code = 500
+                break
+            reload_status, sts, msg = self.reload()
+            if reload_status != 200:
+                status_code = reload_status
+                break
+            msg = "The rule was deleted successfully"
+            status_code = 204
+            break
+        return status_code, sts, msg
 
     def reload(self) -> tuple[int, str, str]:
         """Reloads the Prometheus configuration"""
@@ -71,7 +92,7 @@ class PrometheusRequest:
             return 500, "error", str(e)
         return r.status_code, "success" if r.status_code == 200 else "error", r.text
 
-    def create_rule(self, rule: Rule, file: str = "") -> tuple[int, dict]:
+    def create_rule(self, rule: Rule, file: str = None) -> tuple[int, dict]:
         """
         A common function for the /rules API
         is used in the POST and PUT routes.
@@ -79,16 +100,16 @@ class PrometheusRequest:
 
         def __filename_generator() -> str:
             """
-            Generated a random filename depending on the
+            Generates a random filename depending on the
             '--file.prefix' and '--file.extension' flags
             """
             nonlocal file
             file_prefix = f"{arg_parser().get('file.prefix')}-" if arg_parser().get('file.prefix') else ""
             file_suffix = arg_parser().get('file.extension')
-            return f"{file_prefix}{str(uuid4())}{file_suffix}" if file == "" else file
+            return file if file else f"{file_prefix}{str(uuid4())}{file_suffix}"
 
         def __create_rule_file(data) -> tuple[bool, str, str]:
-            """Creates Prometheus rule file"""
+            """Creates a file"""
             nonlocal file
             try:
                 with open(f"{self.prom_rule_path}/{file}", "w") as f:
