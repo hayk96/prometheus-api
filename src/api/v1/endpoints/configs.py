@@ -83,7 +83,7 @@ async def get_config(
         request: Request,
         response: (Response or PlainTextResponse)
 ):
-    cfg_status, response.status_code, cfg_dict = prom.get_prometheus_config()
+    cfg_status, response.status_code, cfg_dict = prom.get_config()
     if cfg_status:
         if request.headers.get("content-type") == "application/yaml":
             data_yaml = yaml.dump(
@@ -197,7 +197,7 @@ async def update_config(
             user_data,
             Dumper=yaml.SafeDumper,
             sort_keys=True)
-        config_update_status, msg = prom.update_prometheus_yml(data=data_yaml)
+        config_update_status, msg = prom.update_config(data=data_yaml)
         if config_update_status:
             response.status_code, sts, msg = prom.reload()
             msg = "Configuration updated successfully" if sts == "success" else msg
@@ -295,14 +295,14 @@ async def partial_update(
     validation_status, response.status_code, sts, msg = \
         validate_schema("configs.json", user_data)
     if validation_status:
-        cfg_status, response.status_code, cfg_dict = prom.get_prometheus_config()
+        cfg_status, response.status_code, cfg_dict = prom.get_config()
         if cfg_status:
             prom.partial_update(user_data, cfg_dict)
             data_yaml = yaml.dump(
                 user_data,
                 Dumper=yaml.SafeDumper,
                 sort_keys=True)
-            config_update_status, msg = prom.update_prometheus_yml(
+            config_update_status, msg = prom.update_config(
                 data=data_yaml)
             if config_update_status:
                 response.status_code, sts, msg = prom.reload()

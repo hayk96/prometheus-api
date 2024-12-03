@@ -15,7 +15,7 @@ class PrometheusRequest:
         self.prom_rule_path = prom_rule_path
         self.prom_config_file = prom_config_file
 
-    def get_prometheus_config(self) -> tuple[bool, int, dict]:
+    def get_config(self) -> tuple[bool, int, dict]:
         """
         This function returns current configuration
         of Prometheus as a dictionary object
@@ -33,7 +33,7 @@ class PrometheusRequest:
                 return True, r.status_code, data
             return False, r.status_code, {"status": "error", "error": r.reason}
 
-    def update_prometheus_yml(self, data: str) -> tuple[bool, str]:
+    def update_config(self, data: str) -> tuple[bool, str]:
         """
         This function updates Prometheus
         configuration file (prometheus.yml)
