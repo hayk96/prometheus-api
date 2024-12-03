@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Response, Request, Body, status
-from src.utils.validations import validate_schema
 from src.utils.arguments import arg_parser
 from string import ascii_lowercase
 from src.models.rule import Rule
@@ -7,7 +6,6 @@ from src.utils.log import logger
 from typing import Annotated
 from random import choices
 from shutil import copy
-import time
 import os
 from src.core.prometheus import PrometheusRequest
 
@@ -15,47 +13,6 @@ router = APIRouter()
 prom = PrometheusRequest()
 
 rule_path = arg_parser().get('rule.path')
-
-
-def create_prometheus_rule(
-        rule: Rule,
-        request: Request,
-        response: Response,
-        file: str) -> dict:
-    """
-    A common function for the /rules API
-    is used in the POST and PUT routes.
-    """
-
-    while True:
-        validation_status, response.status_code, sts, msg = validate_schema("rules.json", rule.data)
-        if not validation_status:
-            response.status_code = status.HTTP_400_BAD_REQUEST
-            break
-        create_rule_status, sts, msg = prom.create_rule(file, data=rule.data)
-        if not create_rule_status:
-            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-            break
-        time.sleep(0.1)
-        response.status_code, sts, msg = prom.reload()
-        if response.status_code != 200:
-            prom.delete_rule(file)
-            break
-        msg = "The rule was created successfully"
-        response.status_code = status.HTTP_201_CREATED
-        break
-
-    logger.info(
-        msg=msg,
-        extra={
-            "status": response.status_code,
-            "method": request.method,
-            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
-
-    resp = {"status": sts, "message": msg}
-    if request.method == "POST":
-        resp.update({"file": file})
-    return resp
 
 
 @router.post("/rules",
@@ -125,7 +82,15 @@ async def create(
         if os.path.exists(f"{rule_path}/{file}"):
             continue
         break
-    return create_prometheus_rule(r, request, response, file)
+    response.status_code, resp = prom.create_rule(r, file)
+    resp["file"] = file
+    logger.info(
+        msg=resp["message"],
+        extra={
+            "status": response.status_code,
+            "method": request.method,
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
+    return resp
 
 
 @router.put("/rules/{file}",
@@ -206,7 +171,7 @@ async def update(
         if recreate.lower() == "true":
             orig_file, temp_file = f"{rule_path}/{file}", f"{rule_path}/{file}.temp"
             copy(orig_file, temp_file)
-            resp = create_prometheus_rule(r, request, response, file)
+            response.status_code, resp = prom.create_rule(r, file)
             if resp.get("status") == "success":
                 os.remove(temp_file)
                 return resp
@@ -222,7 +187,8 @@ async def update(
                 "method": request.method,
                 "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
         return {"status": "error", "message": msg}
-    return create_prometheus_rule(r, request, response, file)
+    response.status_code, resp = prom.create_rule(r, file)
+    return resp
 
 
 @router.delete("/rules/{file}",
