@@ -8,13 +8,15 @@ import time
 import yaml
 import os
 
+args = arg_parser()
 
-class PrometheusRequest:
+
+class PrometheusAPIClient:
 
     def __init__(self,
-                 prom_addr=arg_parser().get("prom.addr"),
-                 prom_config_file=arg_parser().get("config.file"),
-                 prom_rule_path=arg_parser().get("rule.path")):
+                 prom_addr=args.get("prom.addr"),
+                 prom_config_file=args.get("config.file"),
+                 prom_rule_path=args.get("rule.path")):
 
         self.prom_addr = prom_addr
         self.prom_rule_path = prom_rule_path
@@ -55,43 +57,6 @@ class PrometheusRequest:
                 f"Successfully updated Prometheus configuration file: {self.prom_config_file}")
             return True, "success"
 
-    def delete_rule(self, file) -> tuple[int, str, str]:
-        """Deletes Prometheus rule file"""
-
-        def __delete_rule_file() -> tuple[bool, str, str]:
-            """Deletes Prometheus rule file"""
-            nonlocal file
-            try:
-                os.remove(f"{self.prom_rule_path}/{file}")
-            except OSError as e:
-                return False, "error", str(e.strerror)
-            return True, "success", "The rule was deleted successfully"
-
-        while True:
-            if not os.path.exists(f"{self.prom_rule_path}/{file}"):
-                status_code, sts, msg = 404, "error", "File not found"
-                break
-            delete_rule_status, sts, msg = __delete_rule_file()
-            if not delete_rule_status:
-                status_code = 500
-                break
-            reload_status, sts, msg = self.reload()
-            if reload_status != 200:
-                status_code = reload_status
-                break
-            msg = "The rule was deleted successfully"
-            status_code = 204
-            break
-        return status_code, sts, msg
-
-    def reload(self) -> tuple[int, str, str]:
-        """Reloads the Prometheus configuration"""
-        try:
-            r = requests.post(f"{self.prom_addr}/-/reload")
-        except requests.RequestException as e:
-            return 500, "error", str(e)
-        return r.status_code, "success" if r.status_code == 200 else "error", r.text
-
     def create_rule(self, rule: Rule, file: str = None) -> tuple[int, dict]:
         """
         A common function for the /rules API
@@ -104,8 +69,9 @@ class PrometheusRequest:
             '--file.prefix' and '--file.extension' flags
             """
             nonlocal file
-            file_prefix = f"{arg_parser().get('file.prefix')}-" if arg_parser().get('file.prefix') else ""
-            file_suffix = arg_parser().get('file.extension')
+            file_prefix = f"{args.get('file.prefix')}-" if args.get(
+                'file.prefix') else ""
+            file_suffix = args.get('file.extension')
             return file if file else f"{file_prefix}{str(uuid4())}{file_suffix}"
 
         def __create_rule_file(data) -> tuple[bool, str, str]:
@@ -121,16 +87,18 @@ class PrometheusRequest:
 
         file = __filename_generator()
         while True:
-            validation_status, status_code, sts, msg = validate_schema("rules.json", rule.data)
+            validation_status, status_code, status_msg, msg = validate_schema(
+                "rules.json", rule.data)
             if not validation_status:
                 status_code = 400
                 break
-            create_rule_status, sts, msg = __create_rule_file(data=rule.data)
+            create_rule_status, status_msg, msg = __create_rule_file(
+                data=rule.data)
             if not create_rule_status:
                 status_code = 500
                 break
             time.sleep(0.1)
-            status_code, sts, msg = self.reload()
+            status_code, status_msg, msg = self.reload()
             if status_code != 200:
                 self.delete_rule(file)
                 break
@@ -138,5 +106,42 @@ class PrometheusRequest:
             status_code = 201
             break
 
-        resp = {"status": sts, "message": msg, "file": file}
+        resp = {"status": status_msg, "message": msg, "file": file}
         return status_code, resp
+
+    def delete_rule(self, file) -> tuple[int, str, str]:
+        """Deletes Prometheus rule file"""
+
+        def __delete_rule_file() -> tuple[bool, str, str]:
+            """Deletes Prometheus rule file"""
+            nonlocal file
+            try:
+                os.remove(f"{self.prom_rule_path}/{file}")
+            except OSError as e:
+                return False, "error", str(e.strerror)
+            return True, "success", "The rule was deleted successfully"
+
+        while True:
+            if not os.path.exists(f"{self.prom_rule_path}/{file}"):
+                status_code, status_msg, msg = 404, "error", "File not found"
+                break
+            delete_rule_status, status_msg, msg = __delete_rule_file()
+            if not delete_rule_status:
+                status_code = 500
+                break
+            reload_status, status_msg, msg = self.reload()
+            if reload_status != 200:
+                status_code = reload_status
+                break
+            msg = "The rule was deleted successfully"
+            status_code = 204
+            break
+        return status_code, status_msg, msg
+
+    def reload(self) -> tuple[int, str, str]:
+        """Reloads the Prometheus configuration"""
+        try:
+            r = requests.post(f"{self.prom_addr}/-/reload")
+        except requests.RequestException as e:
+            return 500, "error", str(e)
+        return r.status_code, "success" if r.status_code == 200 else "error", r.text

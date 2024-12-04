@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Response, Request, Body, status
+from src.core.prometheus import PrometheusAPIClient
 from src.utils.arguments import arg_parser
 from src.models.rule import Rule
 from src.utils.log import logger
 from typing import Annotated
 from shutil import copy
 import os
-from src.core.prometheus import PrometheusRequest
 
 router = APIRouter()
-prom = PrometheusRequest()
-
+prom = PrometheusAPIClient()
 rule_path = arg_parser().get('rule.path')
 
 

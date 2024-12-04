@@ -1,7 +1,7 @@
-from src.core.prometheus import PrometheusRequest
+from src.core.prometheus import PrometheusAPIClient
 
 
-class PrometheusConfig(PrometheusRequest):
+class PrometheusConfig(PrometheusAPIClient):
     def __init__(self):
         super().__init__()
 
