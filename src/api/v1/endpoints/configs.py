@@ -1,14 +1,15 @@
+from src.core.configs import partial_update, rename_global_keyword
 from fastapi import APIRouter, Response, Request, Body, status
+from src.core.prometheus import PrometheusAPIClient
 from src.utils.validations import validate_schema
 from fastapi.responses import PlainTextResponse
-from src.core.configs import PrometheusConfig
 from src.models.config import UpdateConfig
 from src.utils.log import logger
 from typing import Annotated
 import yaml
 
 router = APIRouter()
-prom = PrometheusConfig()
+prom = PrometheusAPIClient()
 
 
 @router.get("/configs",
@@ -189,7 +190,7 @@ async def update_config(
         ],
 ):
     user_data = data.dict(exclude_unset=True)
-    prom.rename_global_keyword(user_data=user_data)
+    rename_global_keyword(user_data=user_data)
     validation_status, response.status_code, sts, msg = \
         validate_schema("configs.json", user_data)
     if validation_status:
@@ -260,7 +261,7 @@ async def update_config(
                   }
               }
               )
-async def partial_update(
+async def partial_updates(
         request: Request,
         response: Response,
         data: Annotated[
@@ -291,13 +292,13 @@ async def partial_update(
         ],
 ):
     user_data = data.dict(exclude_unset=True)
-    prom.rename_global_keyword(user_data)
+    rename_global_keyword(user_data)
     validation_status, response.status_code, sts, msg = \
         validate_schema("configs.json", user_data)
     if validation_status:
         cfg_status, response.status_code, cfg_dict = prom.get_config()
         if cfg_status:
-            prom.partial_update(user_data, cfg_dict)
+            partial_update(user_data, cfg_dict)
             data_yaml = yaml.dump(
                 user_data,
                 Dumper=yaml.SafeDumper,

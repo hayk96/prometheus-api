@@ -21,20 +21,6 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
             log_record["level"] = record.levelname
 
 
-# class LoggerAPI:
-#     def __init__(self):
-#         self.msg = msg
-#         self.msg = msg
-#     def
-#
-#         logger.info(
-#             msg=msg,
-#             extra={
-#                 "status": response.status_code,
-#                 "method": request.method,
-#                 "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
-
-
 logger = logging.getLogger(__name__)
 log_level_from_args = arg_parser().get("log.level")
 logger.setLevel(log_level_from_args.upper())
