@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Response, Request, Body, status
+from src.utils.validations import validate_schema
 from starlette.background import BackgroundTask
 from fastapi.responses import FileResponse
 from src.models.export import ExportData
@@ -73,7 +74,7 @@ async def export(
     file, file_format = None, format.lower()
     custom_fields, timestamp_format = data.get(
         "replace_fields"), data.get("timestamp_format")
-    validation_status, response.status_code, sts, msg = exp.validate_request(
+    validation_status, response.status_code, sts, msg = validate_schema(
         "export.json", data)
     if validation_status:
         range_query = True if all([start, end, step]) else False

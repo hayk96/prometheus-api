@@ -159,3 +159,18 @@ body {
         margin-left: 60px;
     }
 }
+
+#editConfigBtn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#editConfigBtn:hover {
+    background-color: #45a049;
+}
