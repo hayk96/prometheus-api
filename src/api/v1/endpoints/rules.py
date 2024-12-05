@@ -162,20 +162,23 @@ async def update(
             response.status_code, resp = prom.create_rule(r, file)
             if resp.get("status") == "success":
                 os.remove(temp_file)
-                return resp
-            os.rename(temp_file, orig_file)
-            return resp
+            else:
+                os.rename(temp_file, orig_file)
+        else:
+            response.status_code = status.HTTP_409_CONFLICT
+            resp = {
+                "status": "error",
+                "message": "The requested file already exists.",
+                "file": file}
+    else:
+        response.status_code, resp = prom.create_rule(r, file)
 
-        response.status_code = status.HTTP_409_CONFLICT
-        msg = "The requested file already exists."
-        logger.info(
-            msg=msg,
-            extra={
-                "status": response.status_code,
-                "method": request.method,
-                "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
-        return {"status": "error", "message": msg}
-    response.status_code, resp = prom.create_rule(r, file)
+    logger.info(
+        msg=resp["message"],
+        extra={
+            "status": response.status_code,
+            "method": request.method,
+            "request_path": f"{request.url.path}{'?' + request.url.query if request.url.query else ''}"})
     del resp["file"]
     return resp
 
