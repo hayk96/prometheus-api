@@ -18,8 +18,10 @@ services:
     ports:
       - "5000:5000"
     volumes:
+      - "./prometheus.yml:/app/prometheus.yml:rw"
       - "./rules:/app/rules:rw"
     command:
       - --prom.addr=http://prometheus:9090
+      - --config.file=/app/prometheus.yml
       - --rule.path=/app/rules
       - --web.enable-ui=true

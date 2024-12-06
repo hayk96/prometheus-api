@@ -10,15 +10,13 @@ from fastapi import FastAPI
 import uvicorn
 import sys
 
-
 args = arg_parser()
-prom_addr, rule_path = args.get("prom.addr"), args.get("rule.path")
 host, port = args.get("web.listen_address").split(":")
 
-if not all([settings.check_rules_directory(rule_path),
-            settings.check_fs_permissions(rule_path),
-            settings.establish_prom_connection(prom_addr),
-            settings.check_reload_api_status(prom_addr)]):
+if not all([settings.check_files_and_directories(),
+            settings.check_fs_permissions(),
+            settings.establish_prom_connection(),
+            settings.check_reload_api_status()]):
     sys.exit()
 
 
