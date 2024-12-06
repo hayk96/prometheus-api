@@ -1164,6 +1164,11 @@
             "description": "The job name assigned to scraped metrics by default. Must be unique across all scrape configurations.",
             "type": "string"
           },
+          "enable_http2": {
+            "description": "Whether to enable HTTP2. Default is true.",
+            "type": "boolean",
+            "default": true
+          },
           "scrape_interval": {
             "$ref": "#/definitions/duration",
             "description": "How frequently to scrape targets from this job. Defaults to `global.scrape_interval`."
@@ -1370,6 +1375,11 @@
                 "$ref": "#/definitions/duration",
                 "description": "Per-target Alertmanager timeout when pushing alerts.",
                 "default": "10s"
+              },
+              "enable_http2": {
+                "description": "Whether to enable HTTP2. Default is true.",
+                "type": "boolean",
+                "default": true
               },
               "api_version": {
                 "description": "The api version of Alertmanager.",
