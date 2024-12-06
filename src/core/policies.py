@@ -1,3 +1,4 @@
+from jsonschema import validate, exceptions
 from src.utils.arguments import arg_parser
 from src.utils.settings import prom_info
 from src.utils.log import logger
@@ -80,6 +81,21 @@ def load_policies() -> dict:
         logger.error(f"Failed to load metrics lifecycle policies. {e}")
     finally:
         return policies
+
+
+def validate_policy(schema_file, data) -> tuple[bool, int, str, str]:
+    """
+    Validates the rule object provided by
+    the user against the required schema.
+    """
+    schema_file = f"src/schemas/{schema_file}"
+    with open(schema_file) as f:
+        schema = json.load(f)
+    try:
+        validate(instance=data, schema=schema)
+    except exceptions.ValidationError as e:
+        return False, 400, "error", e.args[0]
+    return True, 200, "success", "Policy is valid"
 
 
 def validate_duration(val) -> tuple[bool, int, str, str, int]:
