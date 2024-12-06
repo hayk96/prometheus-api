@@ -65,8 +65,8 @@ enhances flexibility and automation in monitoring and alerting workflows.
 ### Prerequisites
 
 The following prerequisites are required to get up and running with this tool:
-- The Prometheus server's rules directory must be shared and accessible
-- The Prometheus lifecycle API must be enabled to allow requesting the /reload API
+- Prometheus server's rules directory and configuration file (prometheus.yml) must be shared and accessible
+- Prometheus lifecycle API must be enabled to allow requesting the /reload API
 
 ### Quick Start
 

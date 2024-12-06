@@ -160,8 +160,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" id="apiDocumentationLink" class="nav-link">
-                    <img src="/images/icon-web-code.png" alt="Prometheus Docs Logo">API Documentation
+                <a href="#" id="apiReferenceLink" class="nav-link">
+                    <img src="/images/icon-web-code.png" alt="API Reference Logo">API Reference
                 </a>
             </li>
         </ul>
@@ -169,15 +169,19 @@
     <div class="container">
         <h1>The easiest Prometheus management interface</h1>
         <button id="openPrometheusButton">Open Prometheus</button>
+        <button id="configManagementButton">Config Management</button>
         <button id="rulesManagementButton">Rules Management</button>
         <button id="metricsManagementButton">Metrics Management</button>
         <button id="reportsButton">Reports</button>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('apiDocumentationLink').href = window.location.origin + '/redoc';
+            document.getElementById('apiReferenceLink').href = window.location.origin + '/redoc';
             document.getElementById('openPrometheusButton').onclick = function() {
                 window.location.href = window.location.origin + '/graph';
+            };
+            document.getElementById('configManagementButton').onclick = function() {
+                window.location.href = window.location.origin + '/config-management';
             };
             document.getElementById('rulesManagementButton').onclick = function() {
                 window.location.href = window.location.origin + '/rules-management';

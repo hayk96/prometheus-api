@@ -1,10 +1,7 @@
 from src.utils.settings import check_prom_readiness
 from fastapi import APIRouter, Response, status
-from src.utils.arguments import arg_parser
 
 router = APIRouter()
-rule_path = arg_parser().get("rule.path")
-prom_addr = arg_parser().get("prom.addr")
 
 
 @router.get("/health",
@@ -41,8 +38,7 @@ prom_addr = arg_parser().get("prom.addr")
                 }
             })
 async def health(response: Response):
-    global prom_addr
-    if not check_prom_readiness(prom_addr):
+    if not check_prom_readiness():
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return {"status": "error",
                 "message": "Service is unavailable due to a health-check failure"}
