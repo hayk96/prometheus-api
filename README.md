@@ -143,7 +143,9 @@ optional arguments:
 
 required parameters:
   --rule.path RULE.PATH
-                        path to Prometheus rules directory
+                        Prometheus rules directory path
+  --config.file CONFIG.FILE
+                        Prometheus configuration file path                        
   --prom.addr PROM.ADDR
                         URL of Prometheus server, e.g. http://localhost:9090
 ```
