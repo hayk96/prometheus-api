@@ -1,3 +1,4 @@
+from jsonschema import validate, exceptions
 from src.utils.arguments import arg_parser
 from email.utils import formatdate
 from datetime import datetime
@@ -113,6 +114,22 @@ def data_processor(source_data: dict,
     unique_labels.extend(["timestamp", "value"])
     replace_fields(unique_labels, custom_fields)
     return unique_labels, data_processed
+
+
+def validate_request(schema_file, data) -> tuple[bool, int, str, str]:
+    """
+    This function validates the request object
+    provided by the user against the required schema.
+    It will be moved into the utils package in the future.
+    """
+    schema_file = f"src/schemas/{schema_file}"
+    with open(schema_file) as f:
+        schema = json.load(f)
+    try:
+        validate(instance=data, schema=schema)
+    except exceptions.ValidationError as e:
+        return False, 400, "error", e.args[0]
+    return True, 200, "success", "Request is valid"
 
 
 def cleanup_files(file) -> tuple[True, str]:

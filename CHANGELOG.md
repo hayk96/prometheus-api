@@ -1,16 +1,5 @@
 # Changelog
 
-## 0.5.0 / 2024-12-06
-
-* [REFACTOR] Created a `PrometheusAPIClient` class for core API functionalities such as creating/deleting rule files and updating/reloading configurations. Removed a duplicated validation function and moved it to the utils folder. Also Updated the architecture diagram. #53
-* [ENHANCEMENT] Introduced a new web page called Config Management for managing Prometheus configuration through a web interface. This page utilizes the /configs API. #52
-* [ENHANCEMENT] Introduces a new API /configs for Prometheus configuration (prometheus.yml). 
-This API provides three methods: GET, PUT, and PATCH:
-  - Fetch the existing configuration in JSON or YAML format.
-  - Update the entire Prometheus configuration file.
-  - Partially update specific sections of the configuration file. Adds an OpenAPI specification for the prometheus.yml #51
-* [CHANGE] The name of the page API Documentation has been renamed to **API Reference**. Changed server address in API reference page. #50
-
 ## 0.4.2 / 2024-07-05
 
 * [CHANGE] Replaced base64 encoded files in web assets (HTML, CSS) with common images and added a new route for images. 

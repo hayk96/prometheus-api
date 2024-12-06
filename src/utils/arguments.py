@@ -16,13 +16,7 @@ def arg_parser() -> dict:
         "--rule.path",
         required=True,
         type=str,
-        help="Prometheus rules directory path")
-
-    required_params.add_argument(
-        "--config.file",
-        required=True,
-        type=str,
-        help="Prometheus configuration file path")
+        help="path to Prometheus rules directory")
 
     required_params.add_argument(
         "--prom.addr",
