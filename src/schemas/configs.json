@@ -447,6 +447,30 @@
       "type": ["string", "null"],
       "enum": ["http", "https", null]
     },
+    "enable_compression": {
+      "description": "If enable_compression is set to 'false, Prometheus will request uncompressed response from the scraped target.",
+      "type": "boolean",
+      "default": true
+    },
+    "enable_http2": {
+      "description": "Whether to enable HTTP2. Default is true.",
+      "type": "boolean",
+      "default": true
+    },
+    "track_timestamps_staleness": {
+      "description": "Controls whether Prometheus tracks staleness of the metrics that have an explicit timestamps present in scraped data. If track_timestamps_staleness is set to 'true', a staleness marker will be inserted in the TSDB when a metric is no longer present or the target is down.",
+      "type": "boolean",
+      "default": false
+    },
+    "scrape_protocols": {
+      "description": "List of the protocols to negotiate during a scrape with the client.",
+      "type": ["array", "null"],
+      "items": {
+        "type": "string",
+        "description": "The protocols to negotiate during a scrape with the client.",
+        "enum": ["PrometheusProto", "OpenMetricsText1.0.0", "OpenMetricsText0.0.1", "PrometheusText0.0.4"]
+      }
+    },
     "azure_sd_configs": {
       "description": "List of Azure service discovery configurations.",
       "type": ["array", "null"],
@@ -658,6 +682,9 @@
           "authorization": {
             "$ref": "#/definitions/authorization"
           },
+          "enable_http2": {
+            "$ref": "#/definitions/enable_http2"
+          },
           "oauth2": {
             "$ref": "#/definitions/oauth2"
           },
@@ -849,13 +876,7 @@
           "default": "10s"
         },
         "scrape_protocols": {
-          "description": "List of the protocols to negotiate during a scrape with the client.",
-          "type": ["array", "null"],
-          "items": {
-            "type": "string",
-            "description": "The protocols to negotiate during a scrape with the client.",
-            "enum": ["PrometheusProto", "OpenMetricsText1.0.0", "OpenMetricsText0.0.1", "PrometheusText0.0.4"]
-          }
+          "$ref": "#/definitions/scrape_protocols"
         },
         "evaluation_interval": {
           "$ref": "#/definitions/duration",
@@ -1165,9 +1186,16 @@
             "type": "string"
           },
           "enable_http2": {
-            "description": "Whether to enable HTTP2. Default is true.",
-            "type": "boolean",
-            "default": true
+            "$ref": "#/definitions/enable_http2"
+          },
+          "enable_compression": {
+            "$ref": "#/definitions/enable_compression"
+          },
+          "track_timestamps_staleness": {
+            "$ref": "#/definitions/track_timestamps_staleness"
+          },
+          "scrape_protocols": {
+            "$ref": "#/definitions/scrape_protocols"
           },
           "scrape_interval": {
             "$ref": "#/definitions/duration",
