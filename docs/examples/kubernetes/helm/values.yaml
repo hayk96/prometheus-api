@@ -1,4 +1,19 @@
 server:
+  extraInitContainers:
+    - name: config-setup
+      image: busybox
+      command: ["sh", "-c"]
+      args:
+        - >
+          ! test -f /config/prometheus.yml && 
+          cp /etc/config/prometheus.yml /config 
+          || true
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        - name: storage-volume
+          mountPath: /config
+          subPath: config
   sidecarContainers:
      prometheus-api:
        image: hayk96/prometheus-api:latest
@@ -6,12 +21,17 @@ server:
        args:
         - --prom.addr=http://localhost:9091
         - --web.listen-address=0.0.0.0:9090
+        - --config.file=/config/prometheus.yml
         - --rule.path=/rules
         - --web.enable-ui=true
        ports:
          - name: http
            containerPort: 9090
        volumeMounts:
+        - name: storage-volume
+          mountPath: /config
+          subPath: config
+          readOnly: false
         - name: storage-volume
           mountPath: /rules
           subPath: rules
@@ -40,7 +60,11 @@ server:
     - web.enable-lifecycle
     - web.enable-admin-api
     - web.listen-address=:9091
+  configPath: /config/prometheus.yml
   extraVolumeMounts:
+    - name: storage-volume
+      mountPath: /config
+      subPath: config
     - name: storage-volume
       mountPath: /rules
       subPath: rules
@@ -49,3 +73,6 @@ serverFiles:
     rule_files:
       - /rules/*.yml
       - /rules/*.yaml
+configmapReload:
+  prometheus:
+    enabled: false
