@@ -17,7 +17,7 @@ server:
   sidecarContainers:
      prometheus-api:
        image: hayk96/prometheus-api:latest
-       imagePullPolicy: IfNotPresent
+       imagePullPolicy: Always
        args:
         - --prom.addr=http://localhost:9091
         - --web.listen-address=0.0.0.0:9090
