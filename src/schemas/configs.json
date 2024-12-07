@@ -468,7 +468,7 @@
       "items": {
         "type": "string",
         "description": "The protocols to negotiate during a scrape with the client.",
-        "enum": ["PrometheusProto", "OpenMetricsText1.0.0", "OpenMetricsText0.0.1", "PrometheusText0.0.4"]
+        "enum": ["PrometheusProto", "OpenMetricsText1.0.0", "OpenMetricsText0.0.1", "PrometheusText0.0.4", "PrometheusText1.0.0"]
       }
     },
     "azure_sd_configs": {
