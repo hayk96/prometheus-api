@@ -623,6 +623,9 @@
           "authorization": {
             "$ref": "#/definitions/authorization"
           },
+          "enable_http2": {
+            "$ref": "#/definitions/enable_http2"
+          },
           "oauth2": {
             "$ref": "#/definitions/oauth2"
           },
@@ -1009,6 +1012,9 @@
             "description": "Configure whether HTTP requests follow HTTP 3xx redirects.",
             "type": ["boolean", "null"],
             "default": true
+          },
+          "enable_http2": {
+            "$ref": "#/definitions/enable_http2"
           },
           "queue_config": {
             "description": "Configures the queue used to write to remote storage.",
@@ -1405,9 +1411,7 @@
                 "default": "10s"
               },
               "enable_http2": {
-                "description": "Whether to enable HTTP2. Default is true.",
-                "type": "boolean",
-                "default": true
+                "$ref": "#/definitions/enable_http2"
               },
               "api_version": {
                 "description": "The api version of Alertmanager.",
