@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 / 2024-12-07
+
+* [BUGFIX] Fixed JSON schema validations for configuration management API. #59 
+
 ## 0.5.0 / 2024-12-06
 
 * [REFACTOR] Created a `PrometheusAPIClient` class for core API functionalities such as creating/deleting rule files and updating/reloading configurations. Removed a duplicated validation function and moved it to the utils folder. Also Updated the architecture diagram. #53
